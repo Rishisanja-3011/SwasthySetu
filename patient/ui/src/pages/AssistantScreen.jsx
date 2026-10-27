@@ -170,7 +170,7 @@ const createMessageId = () =>
 export function AssistantScreen() {
   const { patient } = usePatient();
   const storageKey = useMemo(
-    () => `vaanidoc-medibot-messages-${patient?.patient_identifier || 'patient'}`,
+    () => `swasthsetu-medibot-messages-${patient?.patient_identifier || 'patient'}`,
     [patient?.patient_identifier],
   );
 

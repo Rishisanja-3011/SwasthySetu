@@ -79,7 +79,7 @@ export default function DashboardView({
 
         <div className="metric-card">
           <div>
-            <div className="metric-label">Published to VaaniDoc</div>
+            <div className="metric-label">Published to SwasthSetu</div>
             <div className="metric-value" style={{ color: '#10b981' }}>{metrics.publishedCount}</div>
           </div>
           <CheckCircle size={32} color="#10b981" />

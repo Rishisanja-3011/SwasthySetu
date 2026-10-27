@@ -4,7 +4,7 @@
   "synthetic": true,
   "publicBasePath": "/demo-reports/",
   "doctor": { "phone": "+919900000010", "name": "Dr. Demo Mehta", "code": "DOC-DEMO01" },
-  "laboratory": { "phone": "+919900000020", "name": "VaaniDoc Demo Diagnostics", "code": "LAB-DEMO01" },
+  "laboratory": { "phone": "+919900000020", "name": "SwasthSetu Demo Diagnostics", "code": "LAB-DEMO01" },
   "markers": [
     { "key": "hemoglobin", "name": "Hemoglobin", "unit": "g/dL", "reference": { "Male": [13, 18], "Female": [12, 16] } },
     { "key": "rbc", "name": "Total RBC Count", "unit": "mill/cmm", "reference": { "Male": [4.5, 6.5], "Female": [4, 5.5] } },

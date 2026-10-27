@@ -104,7 +104,7 @@ function silenceApplicationConsole(context) {
   // not appear in the smoke command's output.
   console.log = (...args) => {
     const line = args.map((item) => (typeof item === 'string' ? item : '')).join(' ');
-    const match = line.match(/\[VaaniDoc OTP DEV\]\s+challenge=([^\s]+)\s+phone=[^\s]+\s+otp=(\d{6})(?:\s|$)/);
+    const match = line.match(/\[SwasthSetu OTP DEV\]\s+challenge=([^\s]+)\s+phone=[^\s]+\s+otp=(\d{6})(?:\s|$)/);
     if (match) context.otpByChallenge.set(match[1], match[2]);
   };
   console.warn = () => {};

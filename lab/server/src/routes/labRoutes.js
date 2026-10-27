@@ -2,13 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const {
   LabAccessGrant, DiagnosticOrder, DiagnosticReport, LabObservation, AuditEvent, ReportFile,
-  Encounter, Notification,
+  Encounter, Notification, ReportRevision,
 } = require('../models');
 const { requireLabOperator, enforceActiveLabGrant } = require('../middleware/labAccess');
 const {
   decodeOriginalPdf, storeOriginalPdf, originalFilePath, removeOriginalPdf, downloadOriginalPdf,
 } = require('../services/reportFiles');
-const { runExtraction } = require('../services/extractionRunner');
+const extractionRunner = require('../services/extractionRunner');
 
 const router = express.Router();
 router.use(requireLabOperator);
@@ -73,6 +73,7 @@ function reportSummary(report, active = false) {
     lab_access_grant_id: report.lab_access_grant_id,
     test_type: report.test_type,
     status: report.status,
+    workflow_revision: report.workflow_revision || 0,
     created_at: report.created_at,
     published_at: report.published_at,
     extraction_review_required: report.extraction_review_required,
@@ -80,6 +81,8 @@ function reportSummary(report, active = false) {
     extraction_source: source,
     extraction_coverage: report.extraction_coverage,
     extraction_validation: report.extraction_validation,
+    extraction_patient_context: report.extraction_patient_context,
+    extraction_identity_check: report.extraction_identity_check,
     ...(active ? { original_file_name: report.original_file_name, report_hash: report.report_hash } : {}),
   };
 }
@@ -115,17 +118,24 @@ function extractionReportStatus(extraction) {
   const hasReview = Boolean(extraction.review_required)
     || tests.some((test) => test.needs_review)
     || validation.status !== 'VALID'
-    || coverage.status === 'INCOMPLETE'
+    || coverage.status !== 'COMPLETE'
+    || extraction.publish_blocking_reasons?.length > 0
     || !tests.length;
   return hasReview ? 'NEEDS_REVIEW' : 'PROCESSING';
 }
 
 function reportReviewBlockers(report, observations = []) {
   const blockers = [];
-  const validationStatus = report.extraction_validation?.status;
-  const coverageStatus = report.extraction_coverage?.status;
-  if (validationStatus && validationStatus !== 'VALID') blockers.push(`EXTRACTION_VALIDATION_${validationStatus}`);
-  if (coverageStatus && coverageStatus !== 'COMPLETE') blockers.push(`EXTRACTION_COVERAGE_${coverageStatus}`);
+  const persistedBlockers = Array.isArray(report.publish_blocking_reasons)
+    ? report.publish_blocking_reasons.filter((reason) => !['OBSERVATION_REVIEW_REQUIRED', 'NO_OBSERVATIONS'].includes(reason))
+    : [];
+  blockers.push(...persistedBlockers);
+  const validationStatus = report.extraction_validation?.status || 'MISSING';
+  const coverageStatus = report.extraction_coverage?.status || 'MISSING';
+  if (validationStatus !== 'VALID') blockers.push(`EXTRACTION_VALIDATION_${validationStatus}`);
+  if (coverageStatus !== 'COMPLETE') blockers.push(`EXTRACTION_COVERAGE_${coverageStatus}`);
+  if (report.extraction_coverage?.duplicate_markers?.length) blockers.push('DUPLICATE_MARKERS');
+  if (!observations.length) blockers.push('NO_OBSERVATIONS');
   if (observations.some((item) => item.validation_status === 'NEEDS_REVIEW')) blockers.push('OBSERVATION_REVIEW_REQUIRED');
   return blockers;
 }
@@ -151,9 +161,143 @@ async function activeReport(req, reportId, session = null) {
     patient_id: report.patient_id,
     status: 'ACTIVE',
     published_report_id: null,
-  }).session(session);
+  }).populate('patient_id').session(session);
   if (!grant) fail(403, 'BOUNDED_ACCESS_EXPIRED');
+  if (grant.report_id && String(grant.report_id) !== String(report._id)) fail(409, 'REPORT_GRANT_MISMATCH');
   return { report, grant };
+}
+
+function checkRevision(req, report) {
+  if (!Number.isInteger(req.body.workflow_revision) || req.body.workflow_revision < 0) fail(400, 'REPORT_REVISION_REQUIRED');
+  if (req.body.workflow_revision !== (report.workflow_revision || 0)) fail(409, 'REPORT_CHANGED');
+}
+
+async function archiveReport(req, report, action, session) {
+  const file = await ReportFile.findOne({ report_id: report._id }).session(session);
+  const observations = await LabObservation.find({ report_id: report._id }).session(session);
+  const [revision] = await ReportRevision.create([{
+    report_id: report._id,
+    lab_access_grant_id: report.lab_access_grant_id,
+    laboratory_id: report.laboratory_id,
+    patient_id: report.patient_id,
+    workflow_revision: report.workflow_revision || 0,
+    action,
+    archived_by: req.auth.sub,
+    report: report.toObject(),
+    original_file: file?.toObject() || null,
+    observations: observations.map((item) => item.toObject()),
+  }], { session });
+  return revision;
+}
+
+async function prepareReportUpload(req, reportId, retainFailure = false, expectedPatient = null) {
+  let original;
+  try { original = decodeOriginalPdf(req.body); } catch (error) { fail(400, error.message); }
+  const metadata = await storeOriginalPdf(reportId, original);
+  let extraction;
+  try {
+    extraction = await extractionRunner.runExtraction(originalFilePath(metadata));
+    if (!extraction || typeof extraction !== 'object' || Array.isArray(extraction)) throw new Error('INVALID_EXTRACTION');
+  } catch (error) {
+    const code = ['EXTRACTION_RUNTIME_UNAVAILABLE', 'EXTRACTION_TIMEOUT'].includes(error.code)
+      ? error.code : 'REPORT_EXTRACTION_FAILED';
+    if (!retainFailure) {
+      await removeOriginalPdf(metadata);
+      fail(code === 'EXTRACTION_RUNTIME_UNAVAILABLE' ? 503 : code === 'EXTRACTION_TIMEOUT' ? 504 : 422, code);
+    }
+    extraction = {
+      tests: [], validation: { status: 'ERROR' }, coverage: { status: 'INCOMPLETE' },
+      review_required: true, publish_blocking_reasons: [code],
+    };
+  }
+  const tests = Array.isArray(extraction.tests) ? extraction.tests : [];
+  const observations = tests.filter((test) => test && test.value != null && test.value !== '' && Number.isFinite(Number(test.value)))
+    .map((test) => extractionObservation(test, extraction.source));
+  const identityCheck = reportIdentityCheck(extraction.patient, expectedPatient);
+  const extractionBlockers = Array.isArray(extraction.publish_blocking_reasons)
+    ? extraction.publish_blocking_reasons
+    : [];
+  const publishBlockingReasons = [...new Set([
+    ...extractionBlockers,
+    ...(identityCheck.mismatches.length ? ['PATIENT_IDENTITY_MISMATCH'] : []),
+  ])];
+  const statusExtraction = { ...extraction, publish_blocking_reasons: publishBlockingReasons };
+  const status = observations.length && observations.length === tests.length
+    ? extractionReportStatus(statusExtraction)
+    : 'NEEDS_REVIEW';
+  return {
+    metadata, observations,
+    fields: {
+      status, report_hash: original.sha256, original_file_name: original.filename,
+      report_source_type: 'LAB_UPLOADED_ORIGINAL', raw_text_content: extraction.raw_text || '',
+      extraction_source: extraction.source || null, extraction_patient_context: extraction.patient || null,
+      extraction_identity_check: identityCheck,
+      extraction_coverage: extraction.coverage || null, extraction_validation: extraction.validation || null,
+      extraction_warnings: [
+        ...(Array.isArray(extraction.source?.warnings) ? extraction.source.warnings : []),
+        ...(Array.isArray(extraction.validation?.issues) ? extraction.validation.issues.map((issue) => issue.message).filter(Boolean) : []),
+        ...(identityCheck.mismatches.length ? ['Report patient identity does not match the active visit.'] : []),
+      ],
+      publish_blocking_reasons: publishBlockingReasons,
+      extraction_review_required: status === 'NEEDS_REVIEW', extraction_completed_at: new Date(),
+    },
+  };
+}
+
+function normalizedIdentityText(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function normalizedPatientIdentifier(value) {
+  return String(value || '').normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+function normalizedGender(value) {
+  const normalized = normalizedIdentityText(value);
+  return { m: 'male', male: 'male', f: 'female', female: 'female' }[normalized] || normalized;
+}
+
+function reportIdentityCheck(extractedPatient, expectedPatient) {
+  const extracted = extractedPatient && typeof extractedPatient === 'object' ? extractedPatient : {};
+  const expected = expectedPatient && typeof expectedPatient === 'object' ? expectedPatient : {};
+  const mismatches = [];
+  let comparedFields = 0;
+
+  const compare = (field, observed, expectedValue, normalize) => {
+    if (observed === null || observed === undefined || observed === ''
+      || expectedValue === null || expectedValue === undefined || expectedValue === '') return;
+    comparedFields += 1;
+    if (normalize(observed) !== normalize(expectedValue)) {
+      const mismatch = { field, observed: String(observed) };
+      // The platform Patient ID is not one of the four identity fields shared
+      // with a laboratory. Keep the comparison server-side without returning
+      // the expected platform identifier to the lab UI.
+      if (field !== 'patient_identifier') mismatch.expected = String(expectedValue);
+      mismatches.push(mismatch);
+    }
+  };
+
+  compare('name', extracted.name, expected.name, normalizedIdentityText);
+  compare(
+    'patient_identifier',
+    extracted.patient_identifier || extracted.identifier,
+    expected.patient_identifier,
+    normalizedPatientIdentifier,
+  );
+  compare('gender', extracted.sex || extracted.gender, expected.gender, normalizedGender);
+
+  const extractedAge = extracted.age_unit === 'years' ? extracted.age_value : extracted.age;
+  compare('age', extractedAge, expected.age, (value) => String(Number(value)));
+
+  return {
+    status: mismatches.length ? 'MISMATCH' : comparedFields ? 'MATCHED' : 'NOT_REPORTED',
+    mismatches,
+  };
 }
 
 router.get('/list', handle(async (req, res) => {
@@ -197,6 +341,7 @@ router.get('/dashboard/:labId', handle(async (req, res) => {
     success: true, worklist,
     metrics: {
       activeGrantsCount: worklist.filter((grant) => grant.grant_status === 'ACTIVE').length,
+      pendingVisitsCount: worklist.filter((grant) => grant.grant_status === 'ACTIVE' && !grant.report_id).length,
       processingCount: reports.filter((report) => ['UPLOADED', 'PROCESSING'].includes(report.status)).length,
       needsReviewCount: reports.filter((report) => report.status === 'NEEDS_REVIEW').length,
       publishedCount: reports.filter((report) => report.status === 'PUBLISHED').length,
@@ -220,35 +365,12 @@ router.get('/grant/:grantId/patient-identity', enforceActiveLabGrant, handle(asy
 }));
 
 router.post(['/upload-report', '/generate-report'], enforceActiveLabGrant, handle(async (req, res) => {
-  let original;
-  try { original = decodeOriginalPdf(req.body); } catch (error) { fail(400, error.message); }
   const grant = req.labGrant;
   if (await DiagnosticReport.exists({ lab_access_grant_id: grant._id })) fail(409, 'REPORT_ALREADY_UPLOADED');
   if (grant.diagnostic_order_id && (String(grant.diagnostic_order_id.patient_id) !== String(grant.patient_id._id)
     || grant.diagnostic_order_id.status !== 'ORDERED')) fail(409, 'INVALID_DIAGNOSTIC_ORDER');
   const reportId = new mongoose.Types.ObjectId();
-  const metadata = await storeOriginalPdf(reportId, original);
-  let extraction;
-  try {
-    extraction = await runExtraction(originalFilePath(metadata));
-  } catch (error) {
-    await removeOriginalPdf(metadata);
-    if (error.code === 'EXTRACTION_RUNTIME_UNAVAILABLE') fail(503, 'EXTRACTION_RUNTIME_UNAVAILABLE');
-    if (error.code === 'EXTRACTION_TIMEOUT') fail(504, 'EXTRACTION_TIMEOUT');
-    fail(422, 'REPORT_EXTRACTION_FAILED');
-  }
-
-  const extractedTests = Array.isArray(extraction.tests) ? extraction.tests : [];
-  const observations = extractedTests
-    .filter((test) => Number.isFinite(Number(test.value)))
-    .map((test) => extractionObservation(test, extraction.source));
-  const reportStatus = extractionReportStatus(extraction);
-  const extractionWarnings = [
-    ...(Array.isArray(extraction.source?.warnings) ? extraction.source.warnings : []),
-    ...(Array.isArray(extraction.validation?.issues)
-      ? extraction.validation.issues.map((issue) => issue.message).filter(Boolean)
-      : []),
-  ];
+  const { metadata, observations, fields } = await prepareReportUpload(req, reportId, true, grant.patient_id);
   let report;
   let persistedObservations = [];
   try {
@@ -256,22 +378,13 @@ router.post(['/upload-report', '/generate-report'], enforceActiveLabGrant, handl
       // Writing the grant serializes upload/publication attempts for this visit.
       const active = await LabAccessGrant.findOneAndUpdate({
         _id: grant._id, laboratory_id: req.laboratory._id, status: 'ACTIVE', published_report_id: null,
+        report_id: null,
       }, { $set: { report_id: reportId } }, { new: true, session });
-      if (!active) fail(403, 'BOUNDED_ACCESS_EXPIRED');
+      if (!active) fail(409, 'GRANT_CHANGED');
       [report] = await DiagnosticReport.create([{
         _id: reportId, patient_id: grant.patient_id._id, laboratory_id: req.laboratory._id,
         lab_access_grant_id: grant._id, diagnostic_order_id: grant.diagnostic_order_id?._id || null,
-         status: reportStatus, test_type: grant.diagnostic_order_id?.test_type || 'CBC',
-         report_hash: original.sha256, original_file_name: original.filename, report_source_type: 'LAB_UPLOADED_ORIGINAL',
-         raw_text_content: extraction.raw_text || '',
-         extraction_source: extraction.source || null,
-         extraction_patient_context: extraction.patient || null,
-         extraction_coverage: extraction.coverage || null,
-         extraction_validation: extraction.validation || null,
-         extraction_warnings: extractionWarnings,
-         publish_blocking_reasons: extraction.publish_blocking_reasons || [],
-         extraction_review_required: Boolean(extraction.review_required) || reportStatus === 'NEEDS_REVIEW',
-         extraction_completed_at: new Date(),
+         ...fields, test_type: grant.diagnostic_order_id?.test_type || 'CBC',
        }], { session });
         await ReportFile.create([metadata], { session });
         if (observations.length) {
@@ -282,10 +395,10 @@ router.post(['/upload-report', '/generate-report'], enforceActiveLabGrant, handl
         }
         await AuditEvent.create([audit(req, report, 'LAB_REPORT_UPLOADED')], { session, ordered: true });
        await AuditEvent.create([audit(req, report, 'LAB_REPORT_EXTRACTED', {
-         input_type: extraction.source?.input_type,
-         tests_detected: extraction.validation?.tests_detected || extractedTests.length,
+         input_type: fields.extraction_source?.input_type,
+         tests_detected: fields.extraction_validation?.tests_detected || observations.length,
          observations_created: observations.length,
-         report_status: reportStatus,
+         report_status: fields.status,
         })], { session, ordered: true });
     });
   } catch (error) {
@@ -298,16 +411,65 @@ router.post(['/upload-report', '/generate-report'], enforceActiveLabGrant, handl
     report: reportSummary(report, true),
     observations: persistedObservations,
     extraction_pending: false,
-    needs_review: reportStatus === 'NEEDS_REVIEW',
+    needs_review: fields.status === 'NEEDS_REVIEW',
     extraction: {
-      source: { ...extraction.source, path: undefined },
-      patient: extraction.patient,
-      coverage: extraction.coverage,
-      validation: extraction.validation,
-      review_required: extraction.review_required,
-      publish_blocking_reasons: extraction.publish_blocking_reasons,
+      source: { ...fields.extraction_source, path: undefined },
+      patient: fields.extraction_patient_context,
+      coverage: fields.extraction_coverage,
+      validation: fields.extraction_validation,
+      review_required: fields.extraction_review_required,
+      publish_blocking_reasons: fields.publish_blocking_reasons,
     },
   });
+}));
+
+router.post('/report/:reportId/replace', handle(async (req, res) => {
+  const initial = await activeReport(req, req.params.reportId);
+  checkRevision(req, initial.report);
+  const { metadata, observations, fields } = await prepareReportUpload(req, initial.report._id, false, initial.grant.patient_id);
+  let updatedReport;
+  let persistedObservations = [];
+  try {
+    await mongoose.connection.transaction(async (session) => {
+      const { report } = await activeReport(req, req.params.reportId, session);
+      checkRevision(req, report);
+      const revision = await archiveReport(req, report, 'REPLACED', session);
+      // Updating the same report serializes replacement, edits and publication,
+      // and preserves the unique grant link without an index migration.
+      report.set(fields);
+      report.workflow_revision = (report.workflow_revision || 0) + 1;
+      await report.save({ session });
+      await ReportFile.updateOne({ report_id: report._id }, { $set: { ...metadata, uploaded_at: new Date() } }, { session, upsert: true, runValidators: true });
+      await LabObservation.deleteMany({ report_id: report._id }, { session });
+      persistedObservations = observations.length ? await LabObservation.create(observations.map((item) => ({ ...item, report_id: report._id })), { session, ordered: true }) : [];
+      await AuditEvent.create([audit(req, report, 'LAB_REPORT_REPLACED', {
+        archived_revision_id: String(revision._id), workflow_revision: report.workflow_revision,
+        report_status: report.status,
+      })], { session });
+      updatedReport = report;
+    });
+  } catch (error) {
+    await removeOriginalPdf(metadata);
+    throw error;
+  }
+  res.json({ success: true, report: reportSummary(updatedReport, true), observations: persistedObservations, needs_review: updatedReport.status === 'NEEDS_REVIEW' });
+}));
+
+router.delete('/report/:reportId', handle(async (req, res) => {
+  await mongoose.connection.transaction(async (session) => {
+    const { report, grant } = await activeReport(req, req.params.reportId, session);
+    checkRevision(req, report);
+    const revision = await archiveReport(req, report, 'REMOVED', session);
+    await DiagnosticReport.deleteOne({ _id: report._id }, { session });
+    await LabObservation.deleteMany({ report_id: report._id }, { session });
+    await ReportFile.deleteOne({ report_id: report._id }, { session });
+    grant.report_id = null;
+    await grant.save({ session });
+    await AuditEvent.create([audit(req, report, 'LAB_REPORT_REMOVED', {
+      archived_revision_id: String(revision._id),
+    })], { session });
+  });
+  res.json({ success: true });
 }));
 
 router.get('/report/:reportId', handle(async (req, res) => {
@@ -341,6 +503,7 @@ router.put('/observation/:observationId', handle(async (req, res) => {
     const { report } = await activeReport(req, found.report_id, session);
     if (!['PROCESSING', 'NEEDS_REVIEW'].includes(report.status)) fail(409, 'EXTRACTION_PENDING');
     observation = await LabObservation.findById(found._id).session(session);
+    if (!observation) fail(409, 'REPORT_CHANGED');
     for (const field of ['value', 'reference_low', 'reference_high']) {
       if (req.body[field] !== undefined) {
         const value = req.body[field];
@@ -364,7 +527,6 @@ router.put('/observation/:observationId', handle(async (req, res) => {
     unresolvedCount = await LabObservation.countDocuments({ report_id: report._id, validation_status: { $ne: 'OK' } }).session(session);
     const remainingObservations = await LabObservation.find({
       report_id: report._id,
-      validation_status: 'NEEDS_REVIEW',
     }).session(session);
     const remainingBlockers = reportReviewBlockers(report, remainingObservations);
     report.status = remainingBlockers.length ? 'NEEDS_REVIEW' : 'PROCESSING';
@@ -393,6 +555,7 @@ router.post('/report/:reportId/publish', handle(async (req, res) => {
   let published;
   await mongoose.connection.transaction(async (session) => {
     const { report, grant } = await activeReport(req, req.params.reportId, session);
+    if (req.body.workflow_revision !== undefined) checkRevision(req, report);
     if (req.body.grant_id && String(req.body.grant_id) !== String(grant._id)) fail(403, 'REPORT_GRANT_MISMATCH');
     if (!['PROCESSING', 'NEEDS_REVIEW'].includes(report.status)) fail(409, 'EXTRACTION_PENDING');
     if (report.extraction_review_required || report.publish_blocking_reasons?.length
@@ -428,7 +591,8 @@ router.post('/report/:reportId/publish', handle(async (req, res) => {
       }).session(session)
       : null;
     await Notification.create([{
-      doctor_id: diagnosticOrder?.doctor_id || null,
+      // Published reports notify the patient only. Doctors use the live queue.
+      doctor_id: null,
       encounter_id: encounter?._id || null,
       patient_id: report.patient_id,
       type: 'REPORT_PUBLISHED',

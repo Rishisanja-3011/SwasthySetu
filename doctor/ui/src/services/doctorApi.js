@@ -2,9 +2,9 @@ const AUTH_BASE = '/api/auth';
 const API_BASE = '/api/doctor';
 
 const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'vaanidoc_doctor_access_token',
-  ACTIVE_DOCTOR: 'vaanidoc_doctor_session',
-  ACTIVE_ENCOUNTER: 'vaanidoc_encounter_active',
+  ACCESS_TOKEN: 'swasthsetu_doctor_access_token',
+  ACTIVE_DOCTOR: 'swasthsetu_doctor_session',
+  ACTIVE_ENCOUNTER: 'swasthsetu_encounter_active',
 };
 
 function normalizeDoctor(doctor) {
@@ -168,19 +168,6 @@ export const doctorApi = {
       throw error;
     }
     return response.blob();
-  },
-
-  async getNotifications(doctorId) {
-    const result = await request(`${API_BASE}/notifications/${encodeURIComponent(doctorId)}`);
-    return { notifications: result.notifications || [], unreadCount: result.unread_count || 0 };
-  },
-
-  async markNotificationRead(notificationId) {
-    return request(`${API_BASE}/notifications/${notificationId}/read`, { method: 'POST' });
-  },
-
-  async markAllNotificationsRead(doctorId) {
-    return request(`${API_BASE}/notifications/read-all/${encodeURIComponent(doctorId)}`, { method: 'POST' });
   },
 
   _syncLocalEncounterState(encounter = {}) {

@@ -3,7 +3,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const models = require('../src/models');
 
-const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vaani_doc_local';
+const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/swasthsetu_local';
 
 async function createCollectionsAndIndexes() {
   await mongoose.connect(mongoUri, {

@@ -68,10 +68,10 @@ export default function PublishedExpiredView({
             className="btn btn-primary"
             style={{ fontSize: '0.8rem', padding: '0.35rem 0.85rem' }}
             onClick={onOpenPatientView}
-            title="Preview how Rahul Sharma and Dr. Ramesh Mehta view the published CBC record in VaaniDoc"
+            title="Preview how Rahul Sharma and Dr. Ramesh Mehta view the published CBC record in SwasthSetu"
           >
             <Heart size={14} />
-            <span>View in VaaniDoc Patient Dashboard</span>
+            <span>View in SwasthSetu Patient Dashboard</span>
           </button>
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function PublishedExpiredView({
       <div className="banner success">
         <CheckCircle size={22} style={{ flexShrink: 0 }} />
         <div>
-          <strong>Report Successfully Published to VaaniDoc:</strong> Findings have been locked and transmitted 
+          <strong>Report Successfully Published to SwasthSetu:</strong> Findings have been locked and transmitted 
           to Rahul Sharma's Patient Dashboard and will be viewable by Dr. Ramesh Mehta upon a future Revisiting consultation.
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function PublishedExpiredView({
         </div>
 
         <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          <strong>No Revoke Button Required:</strong> In accordance with the core VaaniDoc security model, 
+          <strong>No Revoke Button Required:</strong> In accordance with the core SwasthSetu security model, 
           the laboratory's access to Rahul Sharma's identity expired automatically the instant this report was published. 
           No temporary data remains accessible to the laboratory.
         </p>
@@ -211,7 +211,7 @@ export default function PublishedExpiredView({
 
           <button className="btn btn-outline" onClick={onOpenPatientView}>
             <Heart size={16} color="var(--teal-700)" />
-            <span>VaaniDoc Patient Portal Preview</span>
+            <span>SwasthSetu Patient Portal Preview</span>
           </button>
         </div>
 

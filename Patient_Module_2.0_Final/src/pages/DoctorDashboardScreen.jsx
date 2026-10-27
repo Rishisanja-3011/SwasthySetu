@@ -283,7 +283,7 @@ export function DoctorDashboardScreen() {
                 </span>
               </div>
               <p style={{ fontSize: '13px', color: 'var(--muted-text)', margin: '4px 0 0 0' }}>
-                VaaniDoc Consultation Suite • General Medicine & Diabetology • Live Patient Queue
+                SwasthSetu Consultation Suite • General Medicine & Diabetology • Live Patient Queue
               </p>
             </div>
           </div>

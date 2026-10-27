@@ -125,7 +125,7 @@ export function HomeScreen() {
           Namaste, {patient.name.split(' ')[0]}
         </h2>
         <p style={{ fontSize: '0.86rem', color: '#cbd5e1', maxWidth: '85%' }}>
-          VaaniDoc simplifies your clinic visits, regional language symptom intake, and laboratory blood reports.
+          SwasthSetu simplifies your clinic visits, regional language symptom intake, and laboratory blood reports.
         </p>
       </div>
 

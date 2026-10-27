@@ -42,11 +42,11 @@ export default function LabLoginView({ onLogin, onRegister, lab }) {
       <div className="clinical-card" style={{ maxWidth: '470px', width: '100%', padding: '2.5rem 2rem', boxShadow: 'var(--neo-raised-lg)', borderRadius: 'var(--radius-xl)' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <div className="brand-icon-box" style={{ width: '48px', height: '48px', margin: '0 auto 1rem auto' }}><Activity size={26} /></div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--main-text)', letterSpacing: '-0.025em' }}>VaaniDoc</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--main-text)', letterSpacing: '-0.025em' }}>SwasthSetu</h1>
           <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--hospital-blue)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: '0.2rem' }}>Laboratory Portal</p>
-          <p style={{ fontSize: '0.84rem', color: 'var(--muted-text)', marginTop: '0.5rem' }}>{isRegistering ? 'Register your facility and receive its VaaniDoc ID' : 'Sign in with your laboratory ID and registered phone'}</p>
+          <p style={{ fontSize: '0.84rem', color: 'var(--muted-text)', marginTop: '0.5rem' }}>{isRegistering ? 'Register your facility and receive its SwasthSetu ID' : 'Sign in with your laboratory ID and registered phone'}</p>
         </div>
-        <a href={publicSite} style={{ display: 'block', textAlign: 'center', color: 'var(--hospital-blue)', fontSize: '0.78rem', fontWeight: 700, marginBottom: 14 }}>← About VaaniDoc</a>
+        <a href={publicSite} style={{ display: 'block', textAlign: 'center', color: 'var(--hospital-blue)', fontSize: '0.78rem', fontWeight: 700, marginBottom: 14 }}>← About SwasthSetu</a>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 4, background: 'var(--surface-inset)', borderRadius: 'var(--radius-md)', marginBottom: '1.4rem', boxShadow: 'var(--neo-inset-sm)' }}>
           <button type="button" onClick={() => switchMode('login')} style={{ border: 0, borderRadius: 8, padding: '0.65rem', background: !isRegistering ? 'var(--surface-raised)' : 'transparent', color: !isRegistering ? 'var(--hospital-blue)' : 'var(--muted-text)', fontWeight: 700, cursor: 'pointer', boxShadow: !isRegistering ? 'var(--neo-raised-sm)' : 'none', transition: 'all 0.16s ease' }}>Returning lab</button>

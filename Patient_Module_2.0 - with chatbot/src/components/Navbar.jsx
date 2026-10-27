@@ -19,7 +19,7 @@ export function Navbar() {
             </div>
             <div className="brand-title-wrap">
               <div className="brand-name">
-                VaaniDoc
+                SwasthSetu
                 <span className="brand-version">2.0</span>
               </div>
               <div className="brand-subtitle">Patient Portal</div>

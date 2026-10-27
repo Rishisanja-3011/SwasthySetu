@@ -78,13 +78,13 @@ export const DoctorLoginScreen = () => {
             <Stethoscope size={30} />
           </div>
           <h1 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--navy-900)', letterSpacing: '-0.02em' }}>
-            VaaniDoc <span style={{ color: 'var(--teal-600)' }}>Doctor Portal</span>
+            SwasthSetu <span style={{ color: 'var(--teal-600)' }}>Doctor Portal</span>
           </h1>
           <p style={{ fontSize: '0.86rem', color: 'var(--slate-500)', marginTop: 4 }}>
             Doctor-Specific Queue • Dual Clinical Intake • Bounded Access
           </p>
         </div>
-        <a href={publicSite} style={{ display: 'block', textAlign: 'center', color: 'var(--teal-700)', fontSize: '0.78rem', fontWeight: 700, marginBottom: 14 }}>← About VaaniDoc</a>
+        <a href={publicSite} style={{ display: 'block', textAlign: 'center', color: 'var(--teal-700)', fontSize: '0.78rem', fontWeight: 700, marginBottom: 14 }}>← About SwasthSetu</a>
 
         {/* Tab Toggle */}
         <div style={{

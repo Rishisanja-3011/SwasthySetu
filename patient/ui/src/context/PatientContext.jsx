@@ -5,7 +5,7 @@ const PatientContext = createContext(null);
 
 export function PatientProvider({ children }) {
   const [patient, setPatient] = useState(() => patientApi.getStoredPatient());
-  const [activeEncounter, setActiveEncounter] = useState(() => patientApi.getActiveEncounter());
+  const [activeEncounter, setActiveEncounter] = useState(null);
   const [authLoading, setAuthLoading] = useState(Boolean(patientApi.getAccessToken()));
   const [authError, setAuthError] = useState(null);
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
@@ -24,8 +24,8 @@ export function PatientProvider({ children }) {
 
       try {
         const restoredPatient = await patientApi.getCurrentProfile();
-        const restoredEncounter = await patientApi.getActiveEncounterFromServer().catch(() => patientApi.getActiveEncounter());
-        if (!cancelled) {
+        const restoredEncounter = await patientApi.getActiveEncounterFromServer().catch(() => null);
+        if (!cancelled && token === patientApi.getAccessToken()) {
           setPatient(restoredPatient);
           setActiveEncounter(restoredEncounter);
         }
@@ -65,31 +65,41 @@ export function PatientProvider({ children }) {
     };
   }, []);
 
-  const refreshEncounter = useCallback(async () => {
-    const current = patientApi.getActiveEncounter();
-    if (!current?.id || !patientApi.getAccessToken()) return;
-    try {
-      const latest = await patientApi.refreshEncounter(current.id);
-      setActiveEncounter(latest);
-    } catch (error) {
-      if (error.status === 401) logout();
-    }
-  }, []);
-
   useEffect(() => {
-    if (!activeEncounter?.id || !patient) return undefined;
+    if (!patient || authLoading) return undefined;
+    let cancelled = false;
+    const token = patientApi.getAccessToken();
+    const refreshEncounter = async () => {
+      try {
+        const current = patientApi.getActiveEncounter();
+        const latest = current?.id
+          ? await patientApi.refreshEncounter(current.id)
+          : await patientApi.getActiveEncounterFromServer();
+        if (!cancelled && token === patientApi.getAccessToken()) setActiveEncounter(latest);
+      } catch (error) {
+        if (cancelled || token !== patientApi.getAccessToken()) return;
+        if (error.status === 401) logout();
+        else if (error.status === 404) {
+          patientApi.clearActiveEncounter();
+          setActiveEncounter(null);
+        }
+      }
+    };
     refreshEncounter();
     const interval = setInterval(refreshEncounter, 2500);
-    return () => clearInterval(interval);
-  }, [activeEncounter?.id, patient, refreshTrigger, refreshEncounter]);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [activeEncounter?.id, patient, authLoading, refreshTrigger]);
 
   const setAuthenticatedSession = (accessToken, authenticatedPatient) => {
     patientApi.saveSession(accessToken, authenticatedPatient);
+    setActiveEncounter(null);
     setPatient(authenticatedPatient);
     setAuthError(null);
     setAuthLoading(false);
     setRefreshTrigger((value) => value + 1);
-    patientApi.getActiveEncounterFromServer().then(setActiveEncounter).catch(() => {});
+    patientApi.getActiveEncounterFromServer().then((encounter) => {
+      if (accessToken === patientApi.getAccessToken()) setActiveEncounter(encounter);
+    }).catch(() => {});
   };
 
   const logout = () => {
@@ -100,11 +110,11 @@ export function PatientProvider({ children }) {
     setRefreshTrigger((value) => value + 1);
   };
 
-  const updateActiveEncounter = (encounter) => {
+  const updateActiveEncounter = useCallback((encounter) => {
     patientApi.saveActiveEncounter(encounter);
     setActiveEncounter(encounter);
     setRefreshTrigger((value) => value + 1);
-  };
+  }, []);
 
   const clearEncounter = () => {
     patientApi.clearActiveEncounter();

@@ -12,7 +12,7 @@ export default function LabDashboardView({
 }) {
   return (
     <div>
-      {/* Page Title with VaaniDoc Section Tag (Matching Image 2) */}
+      {/* Page Title with SwasthSetu Section Tag (Matching Image 2) */}
       <div style={{ marginBottom: '1.75rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--hospital-blue)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.35rem' }}>

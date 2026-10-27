@@ -1,4 +1,4 @@
-# VaaniDoc 2.0 — Patient Module Code Freeze Manifest
+# SwasthSetu 2.0 — Patient Module Code Freeze Manifest
 
 **Version:** 2.0.0 (Code Freeze / Production-Ready)  
 **Status:** FROZEN  
@@ -9,11 +9,11 @@
 
 ## 1. Executive Summary
 
-The **VaaniDoc 2.0 Patient Module** is officially frozen. All functional requirements, clinical workflows, data privacy invariants, and multi-breakpoint responsive designs are verified and locked.
+The **SwasthSetu 2.0 Patient Module** is officially frozen. All functional requirements, clinical workflows, data privacy invariants, and multi-breakpoint responsive designs are verified and locked.
 
 ### Core Architectural Guarantee
 - **Functionality Intact:** Zero changes were made to authentication, backend APIs, data models, doctor QR resolution, lab QR access expiry, consultation lifecycle states, or regional language intake workflows.
-- **Visual Identity Preserved:** Adheres strictly to the VaaniDoc brand identity (Navy `#0a2540`, Emerald Teal `#00a884`, Cobalt Blue `#1d4ed8`, Luminous Slate `#f8fafc`).
+- **Visual Identity Preserved:** Adheres strictly to the SwasthSetu brand identity (Navy `#0a2540`, Emerald Teal `#00a884`, Cobalt Blue `#1d4ed8`, Luminous Slate `#f8fafc`).
 - **Full Breakpoint Responsiveness:** Seamless layout adaptation across Desktop (`≥ 1024px`), Tablet (`768px – 1023px`), and Mobile (`< 768px`).
 
 ---

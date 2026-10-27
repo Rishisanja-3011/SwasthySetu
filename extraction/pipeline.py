@@ -2,11 +2,11 @@
 extraction/pipeline.py — Backward-compatibility shim.
 
 The actual implementation has moved to:
-    extraction.vaanidoc_pipeline.pipeline
+    extraction.swasthsetu_pipeline.pipeline
 """
 
-from extraction.vaanidoc_pipeline.pipeline import *  # noqa: F401, F403
-from extraction.vaanidoc_pipeline.pipeline import (
+from extraction.swasthsetu_pipeline.pipeline import *  # noqa: F401, F403
+from extraction.swasthsetu_pipeline.pipeline import (
     InputType,
     SourceMeta,
     PipelineResult,

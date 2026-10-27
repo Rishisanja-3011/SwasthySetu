@@ -101,7 +101,7 @@ export const DoctorLoginScreen = () => {
             <Stethoscope size={30} />
           </div>
           <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--main-text)', letterSpacing: '-0.025em' }}>
-            VaaniDoc <span style={{ color: 'var(--hospital-blue)' }}>Doctor Portal</span>
+            SwasthSetu <span style={{ color: 'var(--hospital-blue)' }}>Doctor Portal</span>
           </h1>
           <p style={{ fontSize: '0.88rem', color: 'var(--muted-text)', marginTop: 6, lineHeight: 1.4 }}>
             Doctor-Specific Queue • Dual Clinical Intake • Bounded Access

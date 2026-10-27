@@ -54,7 +54,7 @@ export function DoctorAccessPermissionScreen() {
   }
 
   const handleAllowAccess = () => {
-    sessionStorage.setItem('vaanidoc_access_granted', 'true');
+    sessionStorage.setItem('swasthsetu_access_granted', 'true');
     navigate('/intake', {
       state: {
         doctor,
@@ -65,7 +65,7 @@ export function DoctorAccessPermissionScreen() {
   };
 
   const handleDenyAccess = () => {
-    sessionStorage.setItem('vaanidoc_access_granted', 'false');
+    sessionStorage.setItem('swasthsetu_access_granted', 'false');
     navigate('/intake', {
       state: {
         doctor,

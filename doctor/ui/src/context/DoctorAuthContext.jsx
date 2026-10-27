@@ -7,8 +7,6 @@ export const DoctorAuthProvider = ({ children }) => {
   const [doctor, setDoctor] = useState(() => doctorApi.getActiveDoctor());
   const [authLoading, setAuthLoading] = useState(Boolean(doctorApi.getAccessToken()));
   const [queue, setQueue] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -44,46 +42,16 @@ export const DoctorAuthProvider = ({ children }) => {
     }
   }, [doctor]);
 
-  const refreshNotifications = useCallback(async () => {
-    if (!doctor || (!doctor._id && !doctor.id)) return;
-    try {
-      const docId = doctor._id || doctor.id;
-      const res = await doctorApi.getNotifications(docId);
-      setNotifications(res.notifications || []);
-      setUnreadCount(res.unreadCount || 0);
-    } catch (err) {
-      console.error('Notifications poll error:', err);
-    }
-  }, [doctor]);
-
   useEffect(() => {
     if (doctor) {
       refreshQueue();
-      refreshNotifications();
-      // Poll queue and notifications every 3 seconds
+      // Poll the live consultation queue every 3 seconds.
       const interval = setInterval(() => {
         refreshQueue();
-        refreshNotifications();
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [doctor, refreshQueue, refreshNotifications]);
-
-  const markNotificationRead = async (notificationId) => {
-    await doctorApi.markNotificationRead(notificationId);
-    setNotifications(prev =>
-      prev.map(n => (n._id === notificationId ? { ...n, read: true } : n))
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
-  };
-
-  const markAllNotificationsRead = async () => {
-    if (!doctor) return;
-    const docId = doctor._id || doctor.id;
-    await doctorApi.markAllNotificationsRead(docId);
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    setUnreadCount(0);
-  };
+  }, [doctor, refreshQueue]);
 
   const login = async (credentials) => {
     setLoading(true);
@@ -119,8 +87,6 @@ export const DoctorAuthProvider = ({ children }) => {
     doctorApi.clearActiveDoctor();
     setDoctor(null);
     setQueue([]);
-    setNotifications([]);
-    setUnreadCount(0);
   };
 
   return (
@@ -129,11 +95,6 @@ export const DoctorAuthProvider = ({ children }) => {
         doctor,
         queue,
         refreshQueue,
-        notifications,
-        unreadCount,
-        refreshNotifications,
-        markNotificationRead,
-        markAllNotificationsRead,
         login,
         register,
         logout,

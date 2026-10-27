@@ -1,5 +1,5 @@
 /**
- * VaaniDoc - Automatic Spoken and Typed Language Identification
+ * SwasthSetu - Automatic Spoken and Typed Language Identification
  * 
  * Supports Gujarati (gu-IN), Hindi (hi-IN), Marathi (mr-IN), and English (en-IN).
  * Uses Unicode script boundary analysis and regional morpho-syntactic markers
@@ -107,7 +107,7 @@ export function detectLanguage(text) {
 export function getInitialRecognitionLanguage() {
   if (typeof window !== 'undefined') {
     try {
-      const stored = sessionStorage.getItem('vaanidoc_detected_lang');
+      const stored = sessionStorage.getItem('swasthsetu_detected_lang');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed?.code) return parsed.code;
@@ -124,6 +124,6 @@ export function getInitialRecognitionLanguage() {
     }
   }
 
-  // Default regional language for VaaniDoc clinics (Gujarat clinic context)
+  // Default regional language for SwasthSetu clinics (Gujarat clinic context)
   return 'gu-IN';
 }

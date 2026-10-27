@@ -14,7 +14,7 @@ async function onboard() {
   if (!name || !/^\+?\d{10,15}$/.test(phone) || !/^LAB-[A-Z0-9]+$/.test(code || '')) {
     throw new Error('Usage: node scripts/onboardLaboratory.js --name "Laboratory name" --phone "+919000000002" --code "LAB-102" --location "City"');
   }
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vaani_doc_local');
+  await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/swasthsetu_local');
   await mongoose.connection.transaction(async (session) => {
     if (await User.exists({ phone }).session(session)) throw new Error('Phone already registered.');
     let laboratory = await Laboratory.findOne({ qr_code_id: code }).session(session);

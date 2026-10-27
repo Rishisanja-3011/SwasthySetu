@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Stethoscope, LogOut, ShieldCheck, ChevronDown, Bell, Menu, X, ClipboardList, FileText } from 'lucide-react';
+import { Stethoscope, LogOut, ShieldCheck, ChevronDown, Menu, X, ClipboardList, FileText } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDoctorAuth } from '../context/DoctorAuthContext';
 import { DoctorProfileDropdown } from './DoctorProfileDropdown';
-import { NotificationDropdown } from './NotificationDropdown';
 
 export const DoctorNavbar = () => {
-  const { doctor, logout, unreadCount } = useDoctorAuth();
+  const { doctor, logout } = useDoctorAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,7 +62,7 @@ export const DoctorNavbar = () => {
               letterSpacing: '-0.02em',
               lineHeight: 1.1,
             }}>
-               VaaniDoc
+               SwasthSetu
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--slate-500)', fontWeight: 500 }}>
               {doctor?.clinic_name || 'Mehta Community Health Clinic'}
@@ -101,67 +99,12 @@ export const DoctorNavbar = () => {
           <span>Encounter-Bounded Access Active</span>
         </div>
 
-        {/* NOTIFICATION BELL WITH COUNTER */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => {
-              setIsNotificationOpen(!isNotificationOpen);
-              setIsProfileOpen(false);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              backgroundColor: isNotificationOpen ? 'var(--blue-50)' : '#ffffff',
-              border: isNotificationOpen ? '1px solid var(--blue-300)' : '1px solid var(--border-medium)',
-              color: unreadCount > 0 ? 'var(--blue-600)' : 'var(--slate-600)',
-              cursor: 'pointer',
-              position: 'relative',
-              transition: 'all 0.15s ease',
-            }}
-            title={`${unreadCount} notifications`}
-          >
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: -4,
-                right: -4,
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                fontSize: '0.68rem',
-                fontWeight: 800,
-                minWidth: 18,
-                height: 18,
-                borderRadius: 9,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 4px',
-                boxShadow: '0 2px 4px rgba(239, 68, 68, 0.4)',
-              }}>
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          {/* Queue Notifications Dropdown Panel */}
-          <NotificationDropdown
-            isOpen={isNotificationOpen}
-            onClose={() => setIsNotificationOpen(false)}
-          />
-        </div>
-
         {/* CLICKABLE DOCTOR IDENTITY AREA (Opens Doctor Profile Dropdown) */}
         {doctor && (
           <div style={{ position: 'relative' }}>
             <div
               onClick={() => {
                 setIsProfileOpen(!isProfileOpen);
-                setIsNotificationOpen(false);
               }}
               role="button"
               tabIndex={0}

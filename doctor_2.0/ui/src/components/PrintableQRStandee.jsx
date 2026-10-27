@@ -90,7 +90,7 @@ export const PrintableQRStandee = ({ doctor }) => {
             }}
           >
             <Sparkles size={13} color="var(--hospital-blue)" />
-            VaaniDoc Connected Clinic
+            SwasthSetu Connected Clinic
           </div>
 
           <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--main-text)', margin: '4px 0' }}>

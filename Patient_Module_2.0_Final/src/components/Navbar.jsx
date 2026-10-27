@@ -30,7 +30,7 @@ export function Navbar() {
             </div>
             <div className="brand-title-wrap">
               <div className="brand-name">
-                VaaniDoc
+                SwasthSetu
                 <span className="brand-version">Portal</span>
               </div>
               <div className="brand-subtitle">

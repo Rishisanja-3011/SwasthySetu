@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { usePatient } from '../context/PatientContext';
 import { patientApi } from '../services/patientApi';
+import { isLiveConsultation } from '../utils/encounterState';
 import { QRScannerModal } from '../components/QRScannerModal';
 import { LabPermissionModal } from '../components/LabPermissionModal';
 import { StatusBadge } from '../components/StatusBadge';
@@ -108,8 +109,10 @@ export function HomeScreen() {
           Connect with your doctor, describe symptoms in your language, and keep your health records close.
         </p>
         {activeEncounter?.status === 'OPEN' && (
-          <button className="btn btn-outline-teal home-resume" onClick={() => navigate('/waiting')}>
-            <Activity size={16} /> Return to your active visit <ArrowRight size={16} />
+          <button className="btn btn-outline-teal home-resume" onClick={() => isLiveConsultation(activeEncounter)
+            ? navigate('/waiting')
+            : navigate('/intake', { state: { doctor: { id: activeEncounter.doctor_id, name: activeEncounter.doctor_name, qr_code_id: activeEncounter.doctor_code }, visitType: activeEncounter.visit_type } })}>
+            <Activity size={16} /> {isLiveConsultation(activeEncounter) ? 'Return to your active visit' : 'Complete your intake to join the queue'} <ArrowRight size={16} />
           </button>
         )}
       </div>

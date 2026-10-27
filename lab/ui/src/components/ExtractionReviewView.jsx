@@ -133,7 +133,7 @@ export default function ExtractionReviewView({
             </div>
             <span>
               One or more CBC observations have been flagged as <code>NEEDS_REVIEW</code> due to physiological
-              implausibility, low extractor confidence, or ambiguous units. Per VaaniDoc 2.0 safety invariants, 
+              implausibility, low extractor confidence, or ambiguous units. Per SwasthSetu 2.0 safety invariants, 
               you must review and manually resolve all flagged items before this report can be published.
             </span>
           </div>
@@ -300,7 +300,7 @@ export default function ExtractionReviewView({
           }
         >
           {isPublishing ? (
-            <span>Publishing to VaaniDoc...</span>
+            <span>Publishing to SwasthSetu...</span>
           ) : hasNeedsReview ? (
             <>
               <Lock size={16} />

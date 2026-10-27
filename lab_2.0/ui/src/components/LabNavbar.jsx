@@ -14,7 +14,7 @@ export default function LabNavbar({
           <Activity size={20} />
         </div>
         <div className="brand-text-block">
-          <span className="brand-title">VaaniDoc</span>
+          <span className="brand-title">SwasthSetu</span>
           <span className="brand-subtitle">Laboratory Portal</span>
         </div>
         <span className="navbar-role-pill">Lab Workspace</span>

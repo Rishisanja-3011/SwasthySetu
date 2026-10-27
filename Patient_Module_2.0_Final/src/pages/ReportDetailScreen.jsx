@@ -234,7 +234,7 @@ export function ReportDetailScreen() {
           Educational Health Record
         </div>
         <p style={{ fontSize: '0.78rem', color: 'var(--slate-600)', margin: 0, lineHeight: 1.45 }}>
-          Reference ranges and status flags are informational. VaaniDoc does not diagnose diseases or recommend treatments.
+          Reference ranges and status flags are informational. SwasthSetu does not diagnose diseases or recommend treatments.
           When you revisit <strong>{report.ordering_doctor}</strong>, this verified report will be accessible during your consultation.
         </p>
       </div>

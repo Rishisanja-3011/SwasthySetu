@@ -56,7 +56,7 @@ export default function FloatingMediBot() {
   const { patient } = usePatient();
   const [isOpen, setIsOpen] = useState(false);
   const storageKey = useMemo(
-    () => `vaanidoc-dashboard-medibot-chat-${patient?.patient_identifier || 'patient'}`,
+    () => `swasthsetu-dashboard-medibot-chat-${patient?.patient_identifier || 'patient'}`,
     [patient?.patient_identifier],
   );
   const [messages, setMessages] = useState(() => loadMessages(storageKey));

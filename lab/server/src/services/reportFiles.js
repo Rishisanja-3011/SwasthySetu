@@ -34,7 +34,7 @@ function decodeOriginalPdf({ file_base64, file_name, file_mime_type }) {
 }
 
 async function storeOriginalPdf(reportId, file) {
-  const storageKey = `${reportId}-${file.sha256}.pdf`;
+  const storageKey = `${reportId}-${crypto.randomUUID()}-${file.sha256}.pdf`;
   await fs.mkdir(REPORT_STORAGE_ROOT, { recursive: true });
   await fs.writeFile(path.join(REPORT_STORAGE_ROOT, storageKey), file.bytes, { flag: 'wx', mode: 0o600 });
   return {

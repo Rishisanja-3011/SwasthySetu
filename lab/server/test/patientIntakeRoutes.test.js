@@ -129,6 +129,8 @@ test('text preparation stays a draft, and confirmation without edits preserves i
   assert.deepEqual(confirmed.body.intake.symptoms, ['fever']);
   assert.equal(confirmed.body.intake.transcript, 'I have fever');
   assert.equal(state.encounter.queue_status, 'WAITING');
+  assert.equal(confirmed.body.encounter.queue_status, 'WAITING');
+  assert.equal(confirmed.body.encounter.lifecycle_state, 'WAITING');
 });
 
 test('confirmation rejects malformed structure and input-mode relabeling', async (t) => {
@@ -216,6 +218,8 @@ test('confirmation never rewinds a concurrently advanced doctor queue', async (t
   const result = await state.request('confirm', { patient_confirmed: true, structured_data: { symptoms: ['fever'] } });
   assert.equal(result.status, 200);
   assert.equal(state.encounter.queue_status, 'IN_CONSULTATION');
+  assert.equal(result.body.encounter.queue_status, 'IN_CONSULTATION');
+  assert.equal(result.body.encounter.lifecycle_state, 'CONSULTATION_STARTED');
 });
 
 test('browser voice works without a provider and unreliable text cannot masquerade as a transcript', async (t) => {

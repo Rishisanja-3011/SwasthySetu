@@ -1,5 +1,5 @@
 /**
- * VaaniDoc 2.0 - Patient Module API & Data Service
+ * SwasthSetu 2.0 - Patient Module API & Data Service
  * 
  * Interacts with live backend (http://localhost:5000) and provides
  * robust client-side storage for offline/low-bandwidth resilience (<100 KB/s).
@@ -79,12 +79,12 @@ export const REGISTERED_LABS = [
 
 // Helper: Local storage key helpers
 const STORAGE_KEYS = {
-  ACTIVE_PATIENT: 'vaanidoc_patient_active',
-  ACTIVE_ENCOUNTER: 'vaanidoc_encounter_active',
-  ACTIVE_GRANTS: 'vaanidoc_lab_grants',
-  LOCAL_REPORTS: 'vaanidoc_patient_reports',
-  TIMELINE_EVENTS: 'vaanidoc_health_timeline',
-  DRAFT_INTAKE: 'vaanidoc_draft_intake',
+  ACTIVE_PATIENT: 'swasthsetu_patient_active',
+  ACTIVE_ENCOUNTER: 'swasthsetu_encounter_active',
+  ACTIVE_GRANTS: 'swasthsetu_lab_grants',
+  LOCAL_REPORTS: 'swasthsetu_patient_reports',
+  TIMELINE_EVENTS: 'swasthsetu_health_timeline',
+  DRAFT_INTAKE: 'swasthsetu_draft_intake',
 };
 
 // Initial Seed published CBC report for Rahul Sharma
@@ -265,7 +265,7 @@ export const patientApi = {
   saveSessionDoctor(doctor) {
     if (!doctor) return;
     try {
-      sessionStorage.setItem('vaanidoc_session_doctor', JSON.stringify(doctor));
+      sessionStorage.setItem('swasthsetu_session_doctor', JSON.stringify(doctor));
     } catch (e) {
       console.warn('Session store error:', e);
     }
@@ -273,7 +273,7 @@ export const patientApi = {
 
   getSessionDoctor() {
     try {
-      const stored = sessionStorage.getItem('vaanidoc_session_doctor');
+      const stored = sessionStorage.getItem('swasthsetu_session_doctor');
       if (stored) return JSON.parse(stored);
     } catch (e) {
       console.warn('Session read error:', e);
@@ -283,7 +283,7 @@ export const patientApi = {
 
   savePendingIntake(intakeData) {
     try {
-      sessionStorage.setItem('vaanidoc_pending_intake', JSON.stringify(intakeData));
+      sessionStorage.setItem('swasthsetu_pending_intake', JSON.stringify(intakeData));
     } catch (e) {
       console.warn('Session intake store error:', e);
     }
@@ -291,7 +291,7 @@ export const patientApi = {
 
   getPendingIntake() {
     try {
-      const stored = sessionStorage.getItem('vaanidoc_pending_intake');
+      const stored = sessionStorage.getItem('swasthsetu_pending_intake');
       if (stored) return JSON.parse(stored);
     } catch (e) {
       console.warn('Session intake read error:', e);
@@ -327,7 +327,7 @@ export const patientApi = {
    * Get clinic queue list for doctor (DOC-409)
    */
   getClinicQueue(doctorCode = 'DOC-409') {
-    const key = `vaanidoc_clinic_queue_${doctorCode}`;
+    const key = `swasthsetu_clinic_queue_${doctorCode}`;
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -848,7 +848,7 @@ export const patientApi = {
     // 1. Diagnosis attempt blocker
     if (q.includes('diagnos') || q.includes('do i have cancer') || q.includes('do i have dengue') || q.includes('disease') || q.includes('cure me')) {
       return {
-        answer: 'VaaniDoc does not provide medical diagnoses. Your doctor (Dr. Ramesh Mehta) evaluates symptoms alongside your lab observations to determine any clinical diagnosis. Please discuss this directly during your consultation.',
+        answer: 'SwasthSetu does not provide medical diagnoses. Your doctor (Dr. Ramesh Mehta) evaluates symptoms alongside your lab observations to determine any clinical diagnosis. Please discuss this directly during your consultation.',
         isSafetyNotice: true,
       };
     }
@@ -856,7 +856,7 @@ export const patientApi = {
     // 2. Medication / Prescription blocker
     if (q.includes('medicine') || q.includes('tablet') || q.includes('prescription') || q.includes('dose') || q.includes('what should i take')) {
       return {
-        answer: 'VaaniDoc strictly does not prescribe medications or recommend dosages. All treatments and prescriptions must be provided directly by your licensed physician.',
+        answer: 'SwasthSetu strictly does not prescribe medications or recommend dosages. All treatments and prescriptions must be provided directly by your licensed physician.',
         isSafetyNotice: true,
       };
     }

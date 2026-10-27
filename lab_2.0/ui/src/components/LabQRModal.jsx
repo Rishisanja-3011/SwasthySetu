@@ -95,13 +95,13 @@ export default function LabQRModal({
             }}
           >
             <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--hospital-blue)', fontWeight: 800 }}>
-              VaaniDoc 2.0 Registered Laboratory
+              SwasthSetu 2.0 Registered Laboratory
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--main-text)', margin: '0.35rem 0' }}>
               {lab?.name || 'Laboratory'}
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--muted-text)', maxWidth: '400px', margin: '0 auto 1rem auto' }}>
-              Patients: Scan this QR code with your camera or VaaniDoc app to grant 4-field identity access.
+              Patients: Scan this QR code with your camera or SwasthSetu app to grant 4-field identity access.
             </p>
 
             <div

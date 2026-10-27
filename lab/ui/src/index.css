@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VaaniDoc — Professional Medical Teal & Soft Aqua Design System (Lab Module)
+   SwasthSetu — Professional Medical Teal & Soft Aqua Design System (Lab Module)
    Exact Visual Reference: Patient Module 2.0 Final (CarePlus Medical Hospital Theme)
    Palette: Soft pale aqua backgrounds, clean white cards, gentle medical teal CTAs,
    deeper teal hover states, muted blue-gray secondary text, and dark charcoal headings.
@@ -667,6 +667,142 @@ p {
   background-color: var(--surface-inset);
   border-color: var(--border-subtle);
   color: var(--muted-text);
+}
+
+/* Recovery actions are shown only for an unpublished report that has a
+   validation, identity, extraction, or observation blocker. */
+.report-recovery-card {
+  margin-bottom: 1.25rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid #f2c879;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #fffaf0 0%, #fff4dc 100%);
+  box-shadow: 0 8px 22px rgba(156, 104, 24, 0.12);
+}
+
+.report-recovery-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.report-recovery-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: 0 0 2.2rem;
+  border-radius: 0.7rem;
+  color: #a16207;
+  background: #fef3c7;
+  border: 1px solid #f5d58c;
+}
+
+.report-recovery-header h3 {
+  margin: 0;
+  color: #78350f;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.report-recovery-header p {
+  margin: 0.25rem 0 0;
+  color: #92400e;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.report-recovery-reasons {
+  margin: 0.9rem 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(180, 116, 13, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.5);
+  color: #78350f;
+  font-size: 0.78rem;
+}
+
+.report-recovery-reasons > span {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.report-recovery-reasons ul {
+  margin: 0.3rem 0 0 1rem;
+  padding: 0;
+}
+
+.report-recovery-form {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.report-recovery-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.report-file-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(120, 53, 15, 0.25);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.75);
+  color: #78350f;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.report-file-picker:hover {
+  background: #fff;
+  border-color: #d49a31;
+}
+
+.report-selected-file {
+  min-width: 12rem;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #92400e;
+  font-size: 0.78rem;
+}
+
+.report-selected-file.has-file {
+  font-weight: 700;
+}
+
+.report-recovery-actions {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.report-recovery-footnote {
+  margin: 0.8rem 0 0;
+  color: #92400e;
+  font-size: 0.72rem;
+}
+
+.report-recovery-error {
+  margin: 0.7rem 0 0;
+  color: #b91c1c;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 /* Clean Clinical Table */

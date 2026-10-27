@@ -230,12 +230,14 @@ function unconfirmedIntakeFilter(intake) {
 
 async function releaseConfirmedIntake(encounter, patient) {
   const owner = { _id: encounter._id, patient_id: patient._id, status: 'OPEN' };
-  const result = await Encounter.updateOne(
+  await Encounter.updateOne(
     { ...owner, queue_status: 'INTAKE_PENDING' },
     { $set: { queue_status: 'WAITING' } },
   );
   // Never move a doctor's active consultation back to WAITING.
-  if (!result.matchedCount && !await Encounter.exists(owner)) throw intakeConflict('ENCOUNTER_NOT_OPEN');
+  const current = await Encounter.findOne(owner);
+  if (!current) throw intakeConflict('ENCOUNTER_NOT_OPEN');
+  return patientEncounterPayload(current, patient);
 }
 
 function uploadAudio(req, res, next) {
@@ -934,8 +936,8 @@ router.post('/encounters/:encounterId/intake/confirm', async (req, res) => {
       // Recover the second write if a previous confirmation saved successfully
       // but the queue update failed. Confirmed clinical content stays immutable.
       if (encounter.queue_status !== 'INTAKE_PENDING') return res.status(409).json({ success: false, error: 'INTAKE_ALREADY_CONFIRMED' });
-      await releaseConfirmedIntake(encounter, patient);
-      return res.json({ success: true, intake, encounter_id: encounter._id });
+      const currentEncounter = await releaseConfirmedIntake(encounter, patient);
+      return res.json({ success: true, intake, encounter_id: encounter._id, encounter: currentEncounter });
     }
 
     const inputMode = String(req.body.input_mode || intake.input_mode).toUpperCase();
@@ -1015,7 +1017,7 @@ router.post('/encounters/:encounterId/intake/confirm', async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!intake) return res.status(409).json({ success: false, error: 'INTAKE_CHANGED' });
-    await releaseConfirmedIntake(encounter, patient);
+    const currentEncounter = await releaseConfirmedIntake(encounter, patient);
 
     const changed = !jsonEqual(oldClinical, clinical);
     await AuditEvent.create({
@@ -1031,7 +1033,7 @@ router.post('/encounters/:encounterId/intake/confirm', async (req, res) => {
         changed_fields: Object.keys(clinical).filter((field) => (typeof fieldProvenance[field] === 'string' ? fieldProvenance[field] : fieldProvenance[field]?.source) === 'PATIENT_EDITED'),
       },
     });
-    return res.status(200).json({ success: true, intake, encounter_id: encounter._id });
+    return res.status(200).json({ success: true, intake, encounter_id: encounter._id, encounter: currentEncounter });
   } catch (error) {
     if (error.code === 'ENCOUNTER_NOT_OPEN') return res.status(409).json({ success: false, error: error.code });
     console.error('Patient intake confirmation error:', error.name || 'Error');
@@ -1077,6 +1079,7 @@ router.get('/encounters/:encounterId', async (req, res) => {
         patient_id: patient._id,
         doctor_id: encounter.doctor_id?._id,
         doctor_name: encounter.doctor_id?.name,
+        doctor_code: encounter.doctor_id?.qr_code_id,
         clinic_name: encounter.doctor_id?.clinic_name,
         visit_type: encounter.visit_type,
         status: encounter.status,

@@ -31,7 +31,7 @@ export function ProviderScanScreen() {
       .then((resolved) => {
         if (!cancelled) {
           setProvider(resolved);
-          sessionStorage.setItem('vaanidoc_pending_scan_provider', JSON.stringify(resolved));
+          sessionStorage.setItem('swasthsetu_pending_scan_provider', JSON.stringify(resolved));
         }
       })
       .catch((lookupError) => {

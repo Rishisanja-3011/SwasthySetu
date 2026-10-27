@@ -7,7 +7,7 @@ import './FloatingMediBot.css';
 
 const API_URL = 'http://127.0.0.1:8000/api/v1/chat';
 const MAX_QUESTION_LENGTH = 1000;
-const STORAGE_KEY = 'vaanidoc-dashboard-medibot-chat';
+const STORAGE_KEY = 'swasthsetu-dashboard-medibot-chat';
 
 // Correct filename: your image is medibot-avatar.jpg
 const ROBOT_IMAGE = '/images/medibot-avatar.jpg';

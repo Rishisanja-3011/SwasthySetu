@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "VaaniDoc 2.0 Lab Module Express Server with Bounded Access & CBC Engine",
+  "description": "SwasthSetu 2.0 Lab Module Express Server with Bounded Access & CBC Engine",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

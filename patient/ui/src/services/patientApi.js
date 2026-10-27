@@ -1,9 +1,9 @@
 const API_BASE = '/api';
 
 const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'vaani_doc_patient_access_token',
-  PATIENT: 'vaani_doc_patient_profile',
-  ACTIVE_ENCOUNTER: 'vaani_doc_patient_active_encounter',
+  ACCESS_TOKEN: 'swasthsetu_patient_access_token',
+  PATIENT: 'swasthsetu_patient_profile',
+  ACTIVE_ENCOUNTER: 'swasthsetu_patient_active_encounter',
 };
 
 function parseResponse(response, json) {
@@ -66,6 +66,7 @@ export const patientApi = {
   },
 
   saveSession(accessToken, patient) {
+    this.clearActiveEncounter();
     savePatientSession(accessToken, patient);
   },
 
@@ -210,7 +211,9 @@ export const patientApi = {
   },
 
   async getActiveEncounterFromServer() {
+    const token = this.getAccessToken();
     const result = await request('/patient/active-encounter');
+    if (token !== this.getAccessToken()) return null;
     if (result.encounter) this.saveActiveEncounter(result.encounter);
     else this.clearActiveEncounter();
     return result.encounter || null;
@@ -262,7 +265,7 @@ export const patientApi = {
       method: 'POST',
       body: JSON.stringify({ patient_confirmed: true, input_mode: String(inputMode || '').toUpperCase(), structured_data: structuredData || {} }),
     });
-    return result.intake;
+    return { intake: result.intake, encounter: result.encounter };
   },
 
   getActiveEncounter() {
@@ -275,7 +278,9 @@ export const patientApi = {
   },
 
   async refreshEncounter(encounterId) {
+    const token = this.getAccessToken();
     const result = await request(`/patient/encounters/${encounterId}`);
+    if (token !== this.getAccessToken()) return null;
     const encounter = result.encounter;
     this.saveActiveEncounter(encounter);
     return encounter;
@@ -310,13 +315,13 @@ export const patientApi = {
     const query = String(questionText || '').toLowerCase().trim();
     if (query.includes('diagnos') || query.includes('cancer') || query.includes('dengue') || query.includes('disease') || query.includes('cure')) {
       return {
-        answer: 'VaaniDoc does not provide medical diagnoses. Please discuss symptoms and report findings directly with your doctor.',
+        answer: 'SwasthSetu does not provide medical diagnoses. Please discuss symptoms and report findings directly with your doctor.',
         isSafetyNotice: true,
       };
     }
     if (query.includes('medicine') || query.includes('tablet') || query.includes('prescription') || query.includes('dose') || query.includes('what should i take')) {
       return {
-        answer: 'VaaniDoc does not prescribe medicines or recommend dosages. Treatment decisions must come from your licensed physician.',
+        answer: 'SwasthSetu does not prescribe medicines or recommend dosages. Treatment decisions must come from your licensed physician.',
         isSafetyNotice: true,
       };
     }

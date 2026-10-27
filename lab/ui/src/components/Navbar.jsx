@@ -27,7 +27,7 @@ export default function Navbar({
           <Activity size={22} color="#ffffff" />
         </div>
         <div className="brand-text">
-          <h1>VaaniDoc</h1>
+          <h1>SwasthSetu</h1>
           <div className="brand-tag">Laboratory Module & CBC Verification Engine</div>
         </div>
       </div>

@@ -237,7 +237,7 @@ export function SymptomIntakeScreen() {
       const encounter = await getEncounter();
       const intake = await patientApi.prepareSkippedIntake({ encounterId: encounter.id });
       const confirmed = await patientApi.confirmIntake({ encounterId: encounter.id, inputMode: 'SKIPPED', structuredData: intake.structured_data });
-      updateActiveEncounter({ ...encounter, intake: confirmed, queue_status: 'WAITING', lifecycle_state: 'WAITING' });
+      updateActiveEncounter({ ...encounter, ...confirmed.encounter, intake: confirmed.intake });
       navigate('/waiting', { replace: true });
     } catch (error) {
       setErrorMessage(error.message || 'We could not join the waiting room. Please try again.');

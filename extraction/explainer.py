@@ -2,11 +2,11 @@
 extraction/explainer.py — Backward-compatibility shim.
 
 The actual implementation has moved to:
-    extraction.vaanidoc_pipeline.explainer
+    extraction.swasthsetu_pipeline.explainer
 """
 
-from extraction.vaanidoc_pipeline.explainer import *  # noqa: F401, F403
-from extraction.vaanidoc_pipeline.explainer import (
+from extraction.swasthsetu_pipeline.explainer import *  # noqa: F401, F403
+from extraction.swasthsetu_pipeline.explainer import (
     generate_explanations,
     _DISPLAY_NAMES,
     _build_explanation,

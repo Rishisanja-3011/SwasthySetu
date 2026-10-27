@@ -39,8 +39,8 @@ function reportBelongsToGrant(report, grant) {
 
 export default function App() {
   // Navigation & Authentication State
-  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('vaanidoc_lab_access_token') || '');
-  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('vaanidoc_lab_access_token')));
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('swasthsetu_lab_access_token') || '');
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('swasthsetu_lab_access_token')));
   const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' | 'patient_visit' | 'reports'
 
   // Lab & Dashboard Data
@@ -261,7 +261,7 @@ export default function App() {
     if (!response.ok || !data.success) {
       throw new Error(data.message || data.error || 'Laboratory sign-in failed.');
     }
-    localStorage.setItem('vaanidoc_lab_access_token', data.access_token);
+    localStorage.setItem('swasthsetu_lab_access_token', data.access_token);
     setAccessToken(data.access_token);
     setLab({
       _id: data.provider.provider_id,
@@ -284,7 +284,7 @@ export default function App() {
     if (!response.ok || !data.success) {
       throw new Error(data.message || data.error || 'Laboratory registration failed.');
     }
-    localStorage.setItem('vaanidoc_lab_access_token', data.access_token);
+    localStorage.setItem('swasthsetu_lab_access_token', data.access_token);
     setAccessToken(data.access_token);
     setLab({
       _id: data.laboratory.id,
@@ -412,7 +412,7 @@ export default function App() {
     }
   };
 
-  // Action: Publish CBC Report to VaaniDoc (Screen #6 -> Screen #7)
+  // Action: Publish CBC Report to SwasthSetu (Screen #6 -> Screen #7)
   const handlePublishReport = async (signOffNotes) => {
     if (!currentReport || !selectedGrant || selectedGrant.grant_status !== 'ACTIVE') {
       const error = 'Publication is blocked because laboratory access has expired or no report is selected.';
@@ -473,7 +473,7 @@ export default function App() {
   const handleLogout = () => {
     sessionRef.current += 1;
     grantLoadRef.current += 1;
-    localStorage.removeItem('vaanidoc_lab_access_token');
+    localStorage.removeItem('swasthsetu_lab_access_token');
     setAccessToken('');
     setIsLoggedIn(false);
     setActiveStaff(null);

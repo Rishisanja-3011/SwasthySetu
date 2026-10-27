@@ -137,7 +137,7 @@ export default function LabProfileModal({ isOpen, onClose, lab }) {
             }}
           >
             <ShieldCheck size={16} color="var(--hospital-blue)" />
-             <span>Onboarded to VaaniDoc Secure Clinical Network</span>
+             <span>Onboarded to SwasthSetu Secure Clinical Network</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>

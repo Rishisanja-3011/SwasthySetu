@@ -50,7 +50,7 @@ export default function PatientPortalPreviewModal({
               <Heart size={22} color="#10b981" />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>VaaniDoc Patient Portal View</h3>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700 }}>SwasthSetu Patient Portal View</h3>
               <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                 End-to-End Verification: How Rahul Sharma views the published CBC findings
               </p>
@@ -66,7 +66,7 @@ export default function PatientPortalPreviewModal({
             <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
               <div className="skeleton-line" style={{ width: '60%', margin: '0 auto 1rem' }} />
               <div className="skeleton-line" style={{ width: '80%', margin: '0 auto 1rem' }} />
-              <p>Connecting to VaaniDoc Patient Record...</p>
+              <p>Connecting to SwasthSetu Patient Record...</p>
             </div>
           ) : !data ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#ef4444' }}>
@@ -164,7 +164,7 @@ export default function PatientPortalPreviewModal({
                 </div>
               </div>
 
-              {/* VaaniDoc Basic Health & Blood Report Chatbot Preview */}
+              {/* SwasthSetu Basic Health & Blood Report Chatbot Preview */}
               <div
                 style={{
                   background: 'var(--bg-secondary)',
@@ -180,7 +180,7 @@ export default function PatientPortalPreviewModal({
                   </div>
                   <div>
                     <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>
-                      VaaniDoc Blood-Report Health Chatbot (Educational AI)
+                      SwasthSetu Blood-Report Health Chatbot (Educational AI)
                     </strong>
                     <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                       Grounded in Rahul's published lab report · Never prescribes or provides medical diagnosis

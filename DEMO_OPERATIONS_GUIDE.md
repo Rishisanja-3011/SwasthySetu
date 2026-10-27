@@ -13,7 +13,7 @@ publication.
 | Application | Directory | Local URL | Purpose |
 |---|---|---:|---|
 | API/server | `lab/server` | `http://localhost:5000` | Auth and all workflow APIs |
-| Public landing | `landing/ui` | `http://localhost:5174` | VaaniDoc overview and workspace entry points |
+| Public landing | `landing/ui` | `http://localhost:5174` | SwasthSetu overview and workspace entry points |
 | Patient UI | `patient/ui` | `http://localhost:5176` | Patient login, intake, consent, reports |
 | Doctor UI | `doctor/ui` | `http://localhost:5175` | Queue, intake review, notes, orders |
 | Laboratory UI | `lab/ui` | `http://localhost:3000` | Upload, extraction review, publication |
@@ -21,7 +21,7 @@ publication.
 The active source folders are `patient/ui`, `doctor/ui`, `lab/ui`, `lab/server`,
 and `extraction`. Do not use the legacy folders for the live workflow.
 
-The public VaaniDoc introduction page is available at `/welcome` in the patient
+The public SwasthSetu introduction page is available at `/welcome` in the patient
 application. The canonical standalone landing application is `landing/ui` on
 port `5174`; doctor and laboratory login screens link to that standalone app. For separate
 deployed origins, set these frontend build variables:
@@ -49,7 +49,7 @@ Create the private file `lab/server/.env`:
 ```env
 MONGO_URI=<your-development-mongodb-uri>
 PORT=5000
-VAANIDOC_TOKEN_SECRET=<long-local-development-secret>
+SWASTHSETU_TOKEN_SECRET=<long-local-development-secret>
 PYTHON_EXECUTABLE=C:\path\to\python.exe
 EXTRACTION_TIMEOUT_MS=180000
 # Optional; leave empty for deterministic fallback/review behavior.
@@ -156,7 +156,7 @@ Name:         Dr. Demo Mehta
 ```text
 Provider code: LAB-DEMO01
 Phone:        +919900000020
-Name:         VaaniDoc Demo Diagnostics
+Name:         SwasthSetu Demo Diagnostics
 ```
 
 ### Patients
@@ -254,19 +254,19 @@ implausible synthetic value, so the system correctly marks it `NEEDS_REVIEW`.
 
 The original PDF remains preserved and the correction is audited.
 
-### Alternative workflow: upload the corrected PDF
+### Replace or remove an unpublished report
 
-The server intentionally allows one report per grant. To demonstrate a
-corrected PDF upload:
+1. Open **Needs Review**, then **Open Report** for the affected visit.
+2. Under **Replace or remove report**, select the matching
+   `demo/reports/*-corrected.pdf` and click **Replace Report**.
+3. The pipeline runs again for the same grant. The previous PDF, observations,
+   and extraction are archived. A failed replacement leaves the prior report intact.
+4. Once validation passes, the report moves to **Reports** and can be published.
 
-1. Run `npm run demo:reset` first.
-2. Open the matching patient again.
-3. Choose that patient's **Corrected** report in the synthetic selector, or
-   choose the corresponding `demo/reports/*-corrected.pdf` in the file picker.
-4. Upload and publish.
-
-Do not upload the corrected PDF after the original already exists on that
-grant. `REPORT_ALREADY_UPLOADED` is the expected immutable-audit response.
+**Remove Report** archives the current draft and returns the visit to
+**Patient Visits**, ready for a fresh upload. Published reports cannot be replaced
+or removed. Patient Visits shows only visits awaiting upload; Needs Review has
+its own list. A first-upload extraction failure is saved there for recovery.
 
 ## 9. Troubleshooting
 
@@ -275,7 +275,8 @@ grant. `REPORT_ALREADY_UPLOADED` is the expected immutable-audit response.
 | Patient shows login instead of registration | Existing seeded patients use OTP login. Use a new phone for registration. |
 | Doctor login fails | Use exactly `DOC-DEMO01` and `+919900000010`; seed first. |
 | Laboratory login fails | Use exactly `LAB-DEMO01` and `+919900000020`; seed first. |
-| `REPORT_ALREADY_UPLOADED` | Run `npm run demo:reset`, or use a fresh order/grant. |
+| `REPORT_ALREADY_UPLOADED` | Open the existing unpublished report and use **Replace Report**. |
+| `REPORT_CHANGED` | Refresh and reopen the report; another operator changed its revision. |
 | `NEEDS_REVIEW` remains | Check whether the blocker is observation-level or structural validation/coverage. Structural blockers require a new complete report. |
 | `LAB_WORKFLOW_FAILED` | Use the latest pushed code and inspect the API terminal. The correction path now returns bounded error codes. |
 | `EXTRACTION_RUNTIME_UNAVAILABLE` | Set `PYTHON_EXECUTABLE` to Windows Python with numpy/PyMuPDF. |
@@ -295,6 +296,17 @@ ownership, intake confirmation, repeated-confirmation protection, PDF upload,
 extraction, correction, corrected publication, structural blocking, duplicate
 upload rejection, original PDF preservation, access expiry, patient download,
 and fixture lifecycle reset.
+
+The transactional report-recovery regression test also runs with
+`TEST_MONGO_URI` pointing to a **local replica set** (transactions required):
+`node --test test/labReportRecovery.test.js`. It creates its own temporary
+database/storage and checks replacement, removal, rollback, ownership, and patient
+publication boundaries. Without that variable, this integration test is skipped.
+
+The patient queue-navigation check is `node --test patient/ui/test/*.test.js`
+from the repository root. The consultation link appears only after confirmed
+queue entry and disappears when the encounter closes. Doctors use their live
+queue; they do not receive report or queue notifications.
 
 ## 11. Rules for a safe demonstration
 

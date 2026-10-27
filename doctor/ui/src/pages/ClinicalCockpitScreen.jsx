@@ -183,7 +183,7 @@ export const ClinicalCockpitScreen = () => {
           </h2>
 
           <p style={{ fontSize: '0.9rem', color: 'var(--slate-600)', lineHeight: 1.6, maxWidth: 460, margin: '0 auto 20px auto' }}>
-             Under the VaaniDoc Bounded Access model, active physician query access terminates automatically once the consultation ends.
+             Under the SwasthSetu Bounded Access model, active physician query access terminates automatically once the consultation ends.
           </p>
 
           <div style={{
@@ -407,7 +407,7 @@ export const ClinicalCockpitScreen = () => {
         }}>
           <Shield size={20} color="var(--blue-600)" />
           <div style={{ fontSize: '0.82rem', color: 'var(--slate-600)' }}>
-            <strong>NEW Consultation Access Scope:</strong> You are consulting this patient for a fresh episode. Previous historical consultation notes and historical laboratory reports remain locked under VaaniDoc bounded privacy rules.
+            <strong>NEW Consultation Access Scope:</strong> You are consulting this patient for a fresh episode. Previous historical consultation notes and historical laboratory reports remain locked under SwasthSetu bounded privacy rules.
           </div>
         </div>
       )}

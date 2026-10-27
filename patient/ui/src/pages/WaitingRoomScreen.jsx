@@ -16,46 +16,20 @@ import { patientApi } from '../services/patientApi';
 
 export function WaitingRoomScreen() {
   const navigate = useNavigate();
-  const { activeEncounter, updateActiveEncounter, clearEncounter } = usePatient();
+  const { activeEncounter, clearEncounter } = usePatient();
 
   const [currentStep, setCurrentStep] = useState(activeEncounter?.lifecycle_state || 'WAITING');
   const [ending, setEnding] = useState(false);
 
   useEffect(() => {
-    if (!activeEncounter) {
-      navigate('/');
+    if (!activeEncounter || activeEncounter.queue_status === 'INTAKE_PENDING') {
+      navigate('/', { replace: true });
     } else {
       setCurrentStep(activeEncounter.lifecycle_state);
     }
-  }, [activeEncounter]);
+  }, [activeEncounter, navigate]);
 
-  // Poll the server-side encounter boundary; local storage only carries the
-  // encounter identifier across a page refresh.
-  useEffect(() => {
-    let cancelled = false;
-    const refresh = async () => {
-      if (!activeEncounter?.id) return;
-      try {
-        const updated = await patientApi.refreshEncounter(activeEncounter.id);
-        if (!cancelled) {
-          updateActiveEncounter(updated);
-          setCurrentStep(updated.lifecycle_state);
-        }
-      } catch (error) {
-        if (error.status === 401 && !cancelled) navigate('/login', { replace: true });
-      }
-    };
-
-    refresh();
-    const interval = setInterval(refresh, 2500);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [activeEncounter?.id, navigate, updateActiveEncounter]);
-
-  if (!activeEncounter) return null;
+  if (!activeEncounter || activeEncounter.queue_status === 'INTAKE_PENDING') return null;
 
   const handleFinishAndReturnHome = () => {
     clearEncounter();

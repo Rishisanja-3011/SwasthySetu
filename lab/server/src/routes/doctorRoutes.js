@@ -547,7 +547,8 @@ router.post('/encounter/:encounterId/order-diagnostic', async (req, res) => {
       status: 'ORDERED',
       }], { session, ordered: true });
       await Notification.create([{
-      doctor_id: req.doctor._id,
+      // Diagnostic-order updates are patient-facing; doctors use the live queue.
+      doctor_id: null,
       encounter_id: encounter._id,
       patient_id: encounter.patient_id._id,
       type: 'DIAGNOSTIC_ORDER_CREATED',
@@ -596,50 +597,6 @@ router.post('/encounter/:encounterId/end', async (req, res) => {
   } catch (error) {
     console.error('Doctor end consultation error:', error);
     return res.status(500).json({ success: false, error: 'DOCTOR_END_FAILED' });
-  }
-});
-
-router.get('/notifications/:doctorId', async (req, res) => {
-  try {
-    if (String(req.params.doctorId) !== String(req.doctor._id)) {
-      return res.status(403).json({ success: false, error: 'DOCTOR_OWNERSHIP_REQUIRED' });
-    }
-    const notifications = await Notification.find({ doctor_id: req.doctor._id, type: { $ne: 'DIAGNOSTIC_ORDER_CREATED' } })
-      .sort({ created_at: -1 })
-      .limit(25);
-    const unreadCount = await Notification.countDocuments({ doctor_id: req.doctor._id, type: { $ne: 'DIAGNOSTIC_ORDER_CREATED' }, read: false });
-    return res.json({ success: true, notifications, unread_count: unreadCount });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: 'DOCTOR_NOTIFICATIONS_FAILED' });
-  }
-});
-
-router.post('/notifications/:notificationId/read', async (req, res) => {
-  try {
-    if (!isValidObjectId(req.params.notificationId)) {
-      return res.status(404).json({ success: false, error: 'NOTIFICATION_NOT_FOUND' });
-    }
-    const notification = await Notification.findOneAndUpdate(
-      { _id: req.params.notificationId, doctor_id: req.doctor._id, type: { $ne: 'DIAGNOSTIC_ORDER_CREATED' } },
-      { read: true },
-      { new: true },
-    );
-    if (!notification) return res.status(404).json({ success: false, error: 'NOTIFICATION_NOT_FOUND' });
-    return res.json({ success: true, notification });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: 'NOTIFICATION_UPDATE_FAILED' });
-  }
-});
-
-router.post('/notifications/read-all/:doctorId', async (req, res) => {
-  try {
-    if (String(req.params.doctorId) !== String(req.doctor._id)) {
-      return res.status(403).json({ success: false, error: 'DOCTOR_OWNERSHIP_REQUIRED' });
-    }
-    await Notification.updateMany({ doctor_id: req.doctor._id, type: { $ne: 'DIAGNOSTIC_ORDER_CREATED' }, read: false }, { read: true });
-    return res.json({ success: true });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: 'NOTIFICATIONS_UPDATE_FAILED' });
   }
 });
 

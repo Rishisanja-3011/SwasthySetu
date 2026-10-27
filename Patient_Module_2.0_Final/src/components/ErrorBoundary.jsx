@@ -12,7 +12,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('VaaniDoc ErrorBoundary caught:', error, errorInfo);
+    console.error('SwasthSetu ErrorBoundary caught:', error, errorInfo);
   }
 
   handleReset = () => {

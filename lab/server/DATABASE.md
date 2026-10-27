@@ -1,7 +1,7 @@
-# VaaniDoc MongoDB foundation
+# SwasthSetu MongoDB foundation
 
 The canonical database implementation for the new local version lives under
-`lab/server/src/models`. The older `vaanidoc-db/` SQL folder is preserved as a
+`lab/server/src/models`. The older `swasthsetu-db/` SQL folder is preserved as a
 legacy reference and is not modified by this project.
 
 ## Collections
@@ -19,12 +19,13 @@ legacy reference and is not modified by this project.
 | `labaccessgrants` | Four-field laboratory permission, expired on publication |
 | `diagnosticreports` | Report extraction, review, and publication state |
 | `reportfiles` | Immutable original PDF metadata and storage reference |
+| `reportrevisions` | Archived unpublished report/PDF/observation snapshots for replacement and removal |
 | `labobservations` | Extracted, normalized, validated CBC observations |
 | `aiartifacts` | AI-generated content with an explicit source reference |
 | `auditevents` | Authentication, access, workflow, and denial traceability |
 | `authchallenges` | Hashed, short-lived patient OTP challenges |
 | `pendingprovidervisits` | Short-lived QR destination during OTP login |
-| `notifications` | Doctor queue notifications used by the current dashboard |
+| `notifications` | Patient diagnostic-order and published-report notifications |
 
 ## Important access invariants represented by the schema
 
@@ -39,6 +40,11 @@ legacy reference and is not modified by this project.
   `REPORT_STORAGE_ROOT` environment override). The directory is ignored by git;
   MongoDB stores only its immutable storage key and hash.
 - AI artifacts must reference an encounter or report source.
+- Active unpublished reports can be replaced with `POST /api/lab/report/:reportId/replace`
+  or removed from the worklist with `DELETE /api/lab/report/:reportId`. Both require
+  the current `workflow_revision` and archive the old PDF/extraction atomically.
+  Replacement retains the report ID and grant; removal returns the grant to the
+  pending upload queue. Published reports and expired grants reject both actions.
 
 ## Initialize a local or Atlas database
 

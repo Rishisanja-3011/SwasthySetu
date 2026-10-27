@@ -21,13 +21,13 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 8 0 R >>
 endobj
 8 0 obj
-<< /Length 7995 >>
+<< /Length 7997 >>
 stream
 q
 0.04 0.22 0.3 rg 0 744 612 48 re f
 0.03 0.58 0.6 rg 0 744 9 48 re f
 1 1 1 rg BT /F2 17 Tf 40 768 Td (SWASTHSETU) Tj ET
-0.78 0.92 0.93 rg BT /F1 8.2 Tf 40 753 Td (VaaniDoc Demo Diagnostics) Tj ET
+0.78 0.92 0.93 rg BT /F1 8.2 Tf 40 753 Td (SwasthSetu Demo Diagnostics) Tj ET
 0.84 0.96 0.96 rg BT /F2 8.5 Tf 426 768 Td (DEMO LABORATORY) Tj ET
 1 0.82 0.35 rg BT /F2 8 Tf 426 753 Td (SYNTHETIC CBC RESULT) Tj ET
 0.96 0.8 0.37 rg 0.7 0.39 0.06 RG 0.7 w 40 720 532 18 re B
@@ -89,13 +89,13 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 10 0 R >>
 endobj
 10 0 obj
-<< /Length 2075 >>
+<< /Length 2077 >>
 stream
 q
 0.04 0.22 0.3 rg 0 744 612 48 re f
 0.03 0.58 0.6 rg 0 744 9 48 re f
 1 1 1 rg BT /F2 17 Tf 40 768 Td (SWASTHSETU) Tj ET
-0.78 0.92 0.93 rg BT /F1 8.2 Tf 40 753 Td (VaaniDoc Demo Diagnostics) Tj ET
+0.78 0.92 0.93 rg BT /F1 8.2 Tf 40 753 Td (SwasthSetu Demo Diagnostics) Tj ET
 0.84 0.96 0.96 rg BT /F2 8.5 Tf 426 768 Td (DEMO LABORATORY) Tj ET
 1 0.82 0.35 rg BT /F2 8 Tf 426 753 Td (REVIEWER APPENDIX) Tj ET
 0.96 0.8 0.37 rg 0.7 0.39 0.06 RG 0.7 w 40 720 532 18 re B
@@ -131,10 +131,10 @@ xref
 0000000334 00000 n 
 0000000407 00000 n 
 0000000563 00000 n 
-0000008609 00000 n 
-0000008766 00000 n 
+0000008611 00000 n 
+0000008768 00000 n 
 trailer
 << /Size 11 /Root 1 0 R >>
 startxref
-10893
+10897
 %%EOF

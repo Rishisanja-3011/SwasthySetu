@@ -39,9 +39,9 @@ function reportBelongsToGrant(report, grant) {
 
 export default function App() {
   // Navigation & Authentication State
-  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('vaanidoc_lab_access_token') || '');
-  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('vaanidoc_lab_access_token')));
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' | 'patient_visit' | 'reports'
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('swasthsetu_lab_access_token') || '');
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('swasthsetu_lab_access_token')));
+  const [currentView, setCurrentView] = useState('dashboard');
 
   // Lab & Dashboard Data
   const [lab, setLab] = useState(null);
@@ -88,7 +88,13 @@ export default function App() {
 
   const labWorkflowMessage = (code, fallback) => {
     const mappedMessage = {
-      REPORT_ALREADY_UPLOADED: 'This access grant already has a preserved report. Use Fix & Verify for flagged observations, or start a new grant for a replacement document.',
+      REPORT_ALREADY_UPLOADED: 'This visit already has a report. Open it to correct observations or replace the PDF.',
+      REPORT_CHANGED: 'This report changed in another session. Refresh and reopen it before trying again.',
+      GRANT_CHANGED: 'This visit changed. Refresh the worklist before trying again.',
+      EXTRACTION_RUNTIME_UNAVAILABLE: 'The extraction service is unavailable. Your previous report is still available; retry the replacement when the service is running.',
+      EXTRACTION_TIMEOUT: 'Extraction timed out. Your previous report is still available; try again.',
+      REPORT_EXTRACTION_FAILED: 'The replacement PDF could not be extracted. Your previous report is still available; choose a corrected PDF.',
+      PATIENT_IDENTITY_MISMATCH: 'Patient identity mismatch detected. Publication is blocked until the correct report is uploaded.',
       EXTRACTION_REVIEW_REQUIRED: 'Publication remains disabled until the extraction review blockers are resolved.',
       PUBLICATION_BLOCKED: 'Publication remains disabled until all observations are validated.',
       LAB_WORKFLOW_FAILED: fallback,
@@ -123,9 +129,10 @@ export default function App() {
 
   // Load Initial Lab & Dashboard Data. Refreshes never replace the visit the
   // operator is currently reviewing.
-  const loadDashboard = async ({ selectFirst = false } = {}) => {
+  const loadDashboard = async ({ syncSelection = true } = {}) => {
     if (!accessToken) return;
     const sessionId = sessionRef.current;
+    const selectionId = grantLoadRef.current;
     setIsDashboardLoading(true);
     try {
       const listRes = await apiFetch('/api/lab/list');
@@ -161,21 +168,14 @@ export default function App() {
             || refreshedSelectedGrant?.published_report?._id
             || refreshedSelectedGrant?.published_report,
         );
-        if (refreshedSelectedGrant && (
+        const refreshedReport = (dashData.reports || []).find((report) => String(report._id) === String(refreshedReportId));
+        if (syncSelection && selectionId === grantLoadRef.current && refreshedSelectedGrant && (
           refreshedSelectedGrant.grant_status !== selectedGrant.grant_status
           || String(selectedReportId) !== String(refreshedReportId)
+          || refreshedReport?.workflow_revision !== currentReport?.workflow_revision
         )) {
           setSelectedGrant(refreshedSelectedGrant);
           loadGrantDetails(refreshedSelectedGrant, dashData.reports || []);
-        }
-
-        // Select one visit on the first authenticated load only. A manual
-        // refresh is deliberately non-destructive so newly approved grants
-        // appear without changing the current patient context.
-        if (selectFirst && !selectedGrant && dashData.worklist?.length > 0) {
-          const firstActive = dashData.worklist.find((g) => g.grant_status === 'ACTIVE') || dashData.worklist[0];
-          setSelectedGrant(firstActive);
-          loadGrantDetails(firstActive, dashData.reports || []);
         }
       }
     } catch (err) {
@@ -248,7 +248,7 @@ export default function App() {
   useEffect(() => {
     if (!accessToken) return;
     loadAuthenticatedOperator();
-    loadDashboard({ selectFirst: true });
+    loadDashboard();
   }, [accessToken]);
 
   const handleLabLogin = async ({ labCode, phone }) => {
@@ -261,7 +261,7 @@ export default function App() {
     if (!response.ok || !data.success) {
       throw new Error(data.message || data.error || 'Laboratory sign-in failed.');
     }
-    localStorage.setItem('vaanidoc_lab_access_token', data.access_token);
+    localStorage.setItem('swasthsetu_lab_access_token', data.access_token);
     setAccessToken(data.access_token);
     setLab({
       _id: data.provider.provider_id,
@@ -284,7 +284,7 @@ export default function App() {
     if (!response.ok || !data.success) {
       throw new Error(data.message || data.error || 'Laboratory registration failed.');
     }
-    localStorage.setItem('vaanidoc_lab_access_token', data.access_token);
+    localStorage.setItem('swasthsetu_lab_access_token', data.access_token);
     setAccessToken(data.access_token);
     setLab({
       _id: data.laboratory.id,
@@ -306,24 +306,36 @@ export default function App() {
 
   // Action: Open a report from the Dashboard Worklist
   const handleOpenReport = async (grant) => {
+    if (!grant) return;
     setSelectedGrant(grant);
-    setCurrentView('reports');
+    setCurrentView('report_detail');
     await loadGrantDetails(grant);
   };
 
+  const handleNavigate = (view) => {
+    grantLoadRef.current += 1;
+    setSelectedGrant(null);
+    setIdentityData(null);
+    setCurrentReport(null);
+    setObservations([]);
+    setCurrentView(view);
+  };
+
   // Action: Upload Generated Blood Report & Run CBC Extraction Engine
-  const handleUploadReport = async ({ fileName, rawText = null, rawFile = null }) => {
+  const handleUploadReport = async ({ fileName, rawText = null, rawFile = null, replace = false }) => {
     if (!selectedGrant || selectedGrant.grant_status !== 'ACTIVE') {
       const error = 'This laboratory access grant has expired. Upload is no longer available.';
       showNotification(error, 'warning');
       return { success: false, error };
     }
     setIsProcessing(true);
+    const selectionId = grantLoadRef.current;
+    const sessionId = sessionRef.current;
 
     try {
       const grantId = selectedGrant.grant_id || selectedGrant._id;
       const fileBase64 = rawFile ? await fileToBase64(rawFile) : null;
-      const res = await apiFetch('/api/lab/generate-report', {
+      const res = await apiFetch(replace ? `/api/lab/report/${currentReport._id}/replace` : '/api/lab/generate-report', {
         method: 'POST',
         body: JSON.stringify({
           grant_id: grantId,
@@ -331,26 +343,32 @@ export default function App() {
           raw_text: rawText || '',
           file_base64: fileBase64,
           file_mime_type: rawFile?.type || 'application/pdf',
+          ...(replace ? { workflow_revision: currentReport.workflow_revision || 0 } : {}),
           ...(activeStaff ? { technician: activeStaff } : {}),
         }),
       });
 
       const data = await res.json();
+      if (sessionId !== sessionRef.current) return { success: false };
       if (res.ok && data.success && reportBelongsToGrant(data.report, selectedGrant)) {
-        setCurrentReport(data.report);
-        setObservations(data.observations || []);
+        if (selectionId === grantLoadRef.current) {
+          setSelectedGrant({ ...selectedGrant, report_id: data.report._id });
+          setCurrentReport(data.report);
+          setObservations(data.observations || []);
+          setCurrentView('report_detail');
+        }
 
         if (data.extraction_pending) {
           showNotification('Original PDF stored securely. CBC extraction is pending the configured extraction service.', 'warning');
+        } else if (data.report?.publish_blocking_reasons?.includes('PATIENT_IDENTITY_MISMATCH')) {
+          showNotification('Patient identity mismatch detected. Publication is blocked until the correct report is uploaded.', 'warning');
         } else if (data.needs_review) {
-          showNotification('CBC Extracted: One or more parameters require pathologist review before publication.', 'warning');
+          showNotification('Report saved in Needs Review. Correct observations, replace the PDF, or remove the report before publication.', 'warning');
         } else {
           showNotification('Report Uploaded & Extracted: CBC observations validated and ready for review.', 'teal');
         }
 
-        await loadDashboard();
-        // Immediately navigate to extraction review in Reports view
-        setCurrentView('reports');
+        await loadDashboard({ syncSelection: false });
         return { success: true };
       } else {
         const error = labWorkflowMessage(
@@ -412,7 +430,32 @@ export default function App() {
     }
   };
 
-  // Action: Publish CBC Report to VaaniDoc (Screen #6 -> Screen #7)
+  const handleRemoveReport = async () => {
+    if (!currentReport || isProcessing) return { success: false };
+    const selectionId = grantLoadRef.current;
+    const sessionId = sessionRef.current;
+    setIsProcessing(true);
+    try {
+      const res = await apiFetch(`/api/lab/report/${currentReport._id}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ workflow_revision: currentReport.workflow_revision || 0 }),
+      });
+      const data = await res.json();
+      if (sessionId !== sessionRef.current) return { success: false };
+      if (!res.ok || !data.success) throw new Error(labWorkflowMessage(data.error, 'Could not remove the report.'));
+      if (selectionId === grantLoadRef.current) handleNavigate('visits');
+      showNotification('Report removed. The visit is ready for a new upload; the previous document is archived.');
+      await loadDashboard({ syncSelection: false });
+      return { success: true };
+    } catch (error) {
+      showNotification(error.message, 'warning');
+      return { success: false, error: error.message };
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Action: Publish CBC Report to SwasthSetu (Screen #6 -> Screen #7)
   const handlePublishReport = async (signOffNotes) => {
     if (!currentReport || !selectedGrant || selectedGrant.grant_status !== 'ACTIVE') {
       const error = 'Publication is blocked because laboratory access has expired or no report is selected.';
@@ -432,6 +475,7 @@ export default function App() {
         method: 'POST',
         body: JSON.stringify({
           grant_id: grantId,
+          workflow_revision: currentReport.workflow_revision || 0,
           ...(activeStaff ? { technician: activeStaff } : {}),
           sign_off_notes: signOffNotes,
         }),
@@ -473,7 +517,7 @@ export default function App() {
   const handleLogout = () => {
     sessionRef.current += 1;
     grantLoadRef.current += 1;
-    localStorage.removeItem('vaanidoc_lab_access_token');
+    localStorage.removeItem('swasthsetu_lab_access_token');
     setAccessToken('');
     setIsLoggedIn(false);
     setActiveStaff(null);
@@ -525,12 +569,12 @@ export default function App() {
       <div className="shell-body">
         {/* Left Sidebar */}
         <LabSidebar
-          currentView={currentView}
-          onNavigate={(view) => setCurrentView(view)}
+          currentView={currentView === 'patient_visit' ? 'visits' : currentView === 'report_detail' ? (currentReport?.status === 'NEEDS_REVIEW' ? 'needs_review' : 'reports') : currentView}
+          onNavigate={handleNavigate}
           onOpenProfile={() => setIsProfileModalOpen(true)}
            onLogout={handleLogout}
           counts={{
-            pendingVisits: metrics?.activeGrantsCount || 0,
+            pendingVisits: worklist.filter((grant) => grant.grant_status === 'ACTIVE' && !grant.report_id).length,
             needsReview: metrics?.needsReviewCount || 0,
           }}
         />
@@ -545,8 +589,10 @@ export default function App() {
           )}
 
           {/* VIEW 1: DASHBOARD (Screen #2) */}
-          {currentView === 'dashboard' && (
+          {['dashboard', 'visits', 'reports', 'needs_review'].includes(currentView) && (
             <LabDashboardView
+              key={currentView}
+              section={currentView}
               metrics={metrics}
               worklist={worklist}
               reports={allReportsList}
@@ -564,7 +610,7 @@ export default function App() {
                identityData={identityData}
                onUploadReport={handleUploadReport}
                isProcessing={isProcessing}
-               onBackToDashboard={() => setCurrentView('dashboard')}
+               onBackToDashboard={() => handleNavigate('visits')}
                onOpenReport={() => handleOpenReport(selectedGrant)}
                existingReportId={existingReportId}
                grantKey={selectedGrant?.grant_id || selectedGrant?._id || 'no-grant'}
@@ -572,7 +618,7 @@ export default function App() {
           )}
 
           {/* VIEW 3: REPORTS (Screen #4, #5, #6, #7) */}
-          {currentView === 'reports' && (
+          {currentView === 'report_detail' && (
             <ReportDetailView
                key={selectedGrant?.grant_id || selectedGrant?._id || 'no-grant'}
                report={currentReport}
@@ -591,10 +637,11 @@ export default function App() {
                existingReportId={existingReportId}
                isProcessing={isProcessing}
               isPublishing={isPublishing}
-              onUploadReport={handleUploadReport}
+               onUploadReport={handleUploadReport}
+               onRemoveReport={handleRemoveReport}
               onUpdateObservation={handleUpdateObservation}
               onPublishReport={handlePublishReport}
-              onBackToDashboard={() => setCurrentView('dashboard')}
+               onBackToDashboard={() => handleNavigate(currentReport?.status === 'NEEDS_REVIEW' ? 'needs_review' : 'reports')}
               activeStaff={activeStaff}
             />
           )}

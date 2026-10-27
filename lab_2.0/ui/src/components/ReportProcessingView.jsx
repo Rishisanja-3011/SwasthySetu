@@ -24,7 +24,7 @@ export default function ReportProcessingView({
       <div className="info-banner teal" style={{ marginBottom: '1.5rem' }}>
         <ShieldCheck size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
         <div>
-          <strong>Architecture Principle:</strong> VaaniDoc is NOT a generic PDF-upload application. 
+          <strong>Architecture Principle:</strong> SwasthSetu is NOT a generic PDF-upload application. 
           The laboratory environment generates the digital blood report and runs the digital text extraction & 
           deterministic validation pipeline right here at the lab side.
         </div>

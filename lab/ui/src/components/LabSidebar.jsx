@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Users,
   FileText,
+  AlertTriangle,
   Building2,
   LogOut,
 } from 'lucide-react';
@@ -28,8 +29,8 @@ export default function LabSidebar({
         </button>
 
         <button
-          className={`sidebar-nav-item ${currentView === 'patient_visit' ? 'active' : ''}`}
-          onClick={() => onNavigate('patient_visit')}
+          className={`sidebar-nav-item ${currentView === 'visits' ? 'active' : ''}`}
+          onClick={() => onNavigate('visits')}
         >
           <Users size={18} />
           <span>Patient Visits</span>
@@ -38,12 +39,12 @@ export default function LabSidebar({
               style={{
                 marginLeft: 'auto',
                 fontSize: '0.72rem',
-                background: currentView === 'patient_visit' ? 'linear-gradient(135deg, #32B3C2 0%, #2292A0 100%)' : 'var(--surface-inset)',
-                color: currentView === 'patient_visit' ? '#fff' : 'var(--hospital-blue)',
+                 background: currentView === 'visits' ? 'linear-gradient(135deg, #32B3C2 0%, #2292A0 100%)' : 'var(--surface-inset)',
+                 color: currentView === 'visits' ? '#fff' : 'var(--hospital-blue)',
                 padding: '0.14rem 0.55rem',
                 borderRadius: 'var(--radius-full)',
                 fontWeight: 700,
-                boxShadow: currentView === 'patient_visit' ? '0 2px 6px rgba(34, 146, 160, 0.3)' : 'var(--neo-inset-sm)',
+                 boxShadow: currentView === 'visits' ? '0 2px 6px rgba(34, 146, 160, 0.3)' : 'var(--neo-inset-sm)',
               }}
             >
               {counts.pendingVisits}
@@ -57,6 +58,14 @@ export default function LabSidebar({
         >
           <FileText size={18} />
           <span>Reports</span>
+        </button>
+
+        <button
+          className={`sidebar-nav-item ${currentView === 'needs_review' ? 'active' : ''}`}
+          onClick={() => onNavigate('needs_review')}
+        >
+          <AlertTriangle size={18} />
+          <span>Needs Review</span>
           {counts?.needsReview > 0 && (
             <span
               style={{

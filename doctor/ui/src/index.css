@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VaaniDoc 2.0 - Doctor Clinical Module Design System & Global Styles
+   SwasthSetu 2.0 - Doctor Clinical Module Design System & Global Styles
    Desktop-First • Professional Clinical SaaS • Accessible • High-Resilience
    ========================================================================== */
 
@@ -87,7 +87,7 @@
   --radius-full: 9999px;
 }
 
-/* VaaniDoc visual refresh: preserve clinical behavior while matching the
+/* SwasthSetu visual refresh: preserve clinical behavior while matching the
    soft aqua/neomorphic doctor_2.0 presentation. */
 .v-card { border-radius: 20px; border-color: rgba(255,255,255,.85); box-shadow: 6px 6px 16px rgba(150,185,198,.28), -6px -6px 16px rgba(255,255,255,.92); }
 .btn-primary, .btn-teal { border-radius: 12px; box-shadow: 0 8px 22px rgba(34,146,160,.24); }

@@ -39,6 +39,7 @@ def show_result(
 
 text = """
 Patient's Name: Test Patient
+Patient ID: PXTEST001
 Age / Gender : 34 Years/Male
 """
 
@@ -55,8 +56,32 @@ assert result["age"] == 34
 assert result["age_value"] == 34
 assert result["age_unit"] == "years"
 assert result["sex"] == "male"
+assert result["name"] == "Test Patient"
+assert result["patient_identifier"] == "PXTEST001"
 
 print("✓ PASSED")
+
+
+# =========================================================
+# TEST 1B — MULTI-LINE REPORT IDENTITY
+# =========================================================
+
+identity_text = """
+Patient Name :
+Demo Kabir Shah
+Patient ID :
+PXDEMO005
+Age / Sex :
+56 Years/Male
+"""
+
+identity_result = extract_patient_context(identity_text)
+assert identity_result["name"] == "Demo Kabir Shah"
+assert identity_result["patient_identifier"] == "PXDEMO005"
+assert identity_result["age"] == 56
+assert identity_result["sex"] == "male"
+
+print("✓ Multi-line report identity labels parsed")
 
 
 # =========================================================

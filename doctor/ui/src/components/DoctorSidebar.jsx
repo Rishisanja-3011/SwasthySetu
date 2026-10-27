@@ -122,7 +122,7 @@ export const DoctorSidebar = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, color: 'var(--slate-700)', marginBottom: 4 }}>
           <ShieldCheck size={14} color="var(--teal-600)" />
-          <span>VaaniDoc 2.0 Security</span>
+          <span>SwasthSetu 2.0 Security</span>
         </div>
         Doctor queries locked automatically upon consultation closure. Raw audio destroyed.
       </div>

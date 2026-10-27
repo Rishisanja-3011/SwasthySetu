@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Users, Clock, AlertTriangle, CheckCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
 
@@ -10,16 +10,19 @@ export default function LabDashboardView({
   onOpenReport,
   onRefresh,
   isRefreshing,
+  section = 'dashboard',
 }) {
-  const [selectedMetric, setSelectedMetric] = useState(null);
+  const [selectedMetric, setSelectedMetric] = useState(section === 'needs_review' ? 'review' : section === 'reports' ? 'reports' : null);
   const reportList = reports || [];
-  const metricRows = useMemo(() => {
-    if (selectedMetric === 'pending') return worklist || [];
+  const pendingVisits = (worklist || []).filter((grant) => grant.grant_status === 'ACTIVE' && !grant.report_id);
+  const metricRows = (() => {
+    if (selectedMetric === 'pending') return pendingVisits;
+    if (selectedMetric === 'reports') return reportList.filter((report) => report.status !== 'NEEDS_REVIEW');
     if (selectedMetric === 'processing') return reportList.filter((report) => ['UPLOADED', 'PROCESSING'].includes(report.status));
     if (selectedMetric === 'review') return reportList.filter((report) => report.status === 'NEEDS_REVIEW');
     if (selectedMetric === 'published') return reportList.filter((report) => report.status === 'PUBLISHED');
     return [];
-  }, [reportList, selectedMetric, worklist]);
+  })();
 
   const metricCard = (key, className, label, value, icon) => (
     <button type="button" className={`metric-counter-card ${className || ''} metric-counter-card-clickable`} onClick={() => setSelectedMetric(key)} aria-pressed={selectedMetric === key}>
@@ -30,17 +33,17 @@ export default function LabDashboardView({
 
   return (
     <div>
-      {/* Page Title with VaaniDoc Section Tag (Matching Image 2) */}
+      {/* Page Title with SwasthSetu Section Tag (Matching Image 2) */}
       <div style={{ marginBottom: '1.75rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
           <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--teal-brand)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
             LABORATORY WORKSPACE
           </div>
           <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: 'var(--navy-900)', letterSpacing: '-0.025em' }}>
-            Diagnostic Operations Dashboard
+            {section === 'visits' ? 'Patient Visits' : section === 'reports' ? 'Reports' : section === 'needs_review' ? 'Needs Review' : 'Diagnostic Operations Dashboard'}
           </h2>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            Active patient visits, report processing queue, and clinical sign-off status
+            {section === 'needs_review' ? 'Correct observations, replace the PDF, or remove an unpublished report.' : 'Pending visits, report processing, and publication status'}
           </p>
         </div>
         <button
@@ -58,23 +61,23 @@ export default function LabDashboardView({
       </div>
 
       {/* 4 Simple Operational Summary Cards (Matching Image 2 Card Style) */}
-      <div className="metrics-row">
-        {metricCard('pending', 'teal', 'Pending Visits', <AnimatedCounter value={metrics?.activeGrantsCount} />, <Users size={22} />)}
+      {section === 'dashboard' && <div className="metrics-row">
+        {metricCard('pending', 'teal', 'Pending Visits', <AnimatedCounter value={pendingVisits.length} />, <Users size={22} />)}
         {metricCard('processing', 'blue', 'Processing Reports', <AnimatedCounter value={metrics?.processingCount} />, <Clock size={22} />)}
         {metricCard('review', 'red', 'Needs Review', <AnimatedCounter value={metrics?.needsReviewCount} glowType="alert" />, <AlertTriangle size={22} />)}
         {metricCard('published', 'green', 'Published Reports', <AnimatedCounter value={metrics?.publishedCount} />, <CheckCircle size={22} />)}
-      </div>
+      </div>}
 
       {selectedMetric && (
         <div className="clinical-card metric-results-card">
           <div className="clinical-card-header">
-            <div className="card-title-group"><h3 className="card-title">{selectedMetric === 'pending' ? 'Pending patient queue' : selectedMetric === 'processing' ? 'Reports under process' : selectedMetric === 'review' ? 'Reports needing review' : 'Recently published reports'}</h3><span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{metricRows.length} record{metricRows.length === 1 ? '' : 's'}</span></div>
-            <button type="button" className="btn-clinical outline" onClick={() => setSelectedMetric(null)}>Close</button>
+            <div className="card-title-group"><h3 className="card-title">{selectedMetric === 'pending' ? 'Pending patient queue' : selectedMetric === 'processing' ? 'Reports under process' : selectedMetric === 'review' ? 'Reports needing review' : selectedMetric === 'reports' ? 'Processing and published reports' : 'Recently published reports'}</h3><span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{metricRows.length} record{metricRows.length === 1 ? '' : 's'}</span></div>
+            {section === 'dashboard' && <button type="button" className="btn-clinical outline" onClick={() => setSelectedMetric(null)}>Close</button>}
           </div>
           {metricRows.length === 0 ? <p style={{ padding: '1rem 0', color: 'var(--text-muted)' }}>Nothing in this category right now.</p> : (
             <div className="metric-results-list">
               {metricRows.map((item) => {
-                const published = selectedMetric === 'published';
+                const published = item.status === 'PUBLISHED';
                 const reportTime = item.published_at || item.created_at;
                 const reportGrant = !item.grant_status && item.lab_access_grant_id
                   ? (worklist || []).find((grant) => String(grant.grant_id || grant._id) === String(item.lab_access_grant_id))
@@ -84,7 +87,7 @@ export default function LabDashboardView({
                   <div><strong>{published ? (item.report_identifier || item.test_type || 'Diagnostic report') : displayPatient?.name || item.patient?.name || item.original_file_name || item.test_type || 'CBC report'}</strong>
                     <small>{published ? `Published ${reportTime ? new Date(reportTime).toLocaleString() : 'time unavailable'}` : displayPatient ? `${displayPatient.gender || ''} · ${displayPatient.age || ''} yrs · ${item.diagnostic_order?.test_type || item.test_type || 'CBC'}` : `Status: ${item.status}`}</small>
                   </div>
-                  {!published && (reportGrant?.grant_status === 'ACTIVE' ? <button type="button" className="btn-clinical primary" onClick={() => onOpenPatientVisit(reportGrant)}>Open</button> : <button type="button" className="btn-clinical outline" onClick={() => onOpenReport(reportGrant || item)}>Review</button>)}
+                  {reportGrant && <button type="button" className="btn-clinical primary" onClick={() => selectedMetric === 'pending' ? onOpenPatientVisit(reportGrant) : onOpenReport(reportGrant)}>{selectedMetric === 'pending' ? 'Open Visit' : published ? 'View Receipt' : 'Open Report'}</button>}
                 </div>;
               })}
             </div>
@@ -93,17 +96,17 @@ export default function LabDashboardView({
       )}
 
       {/* Pending Worklist Table */}
-      <div className="clinical-card">
+      {['dashboard', 'visits'].includes(section) && <div className="clinical-card">
         <div className="clinical-card-header">
           <div className="card-title-group">
-            <h3 className="card-title">Active Worklist</h3>
+            <h3 className="card-title">Pending Patient Visits</h3>
             <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              ({worklist?.length || 0} active records)
+              ({pendingVisits.length} awaiting upload)
             </span>
           </div>
         </div>
 
-        {!worklist || worklist.length === 0 ? (
+        {pendingVisits.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
             <p style={{ fontSize: '0.9rem' }}>No pending laboratory visits.</p>
             <p style={{ fontSize: '0.78rem', marginTop: '0.35rem' }}>
@@ -123,7 +126,7 @@ export default function LabDashboardView({
                 </tr>
               </thead>
               <tbody>
-                {worklist.map((item) => {
+                {pendingVisits.map((item) => {
                   const isActive = item.grant_status === 'ACTIVE';
 
                   return (
@@ -148,7 +151,7 @@ export default function LabDashboardView({
                         </span>
                       </td>
                       <td style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                        {item.diagnostic_order?.doctor_id?.name || 'Registered Doctor'}
+                        {item.diagnostic_order?.ordering_doctor || 'Registered Doctor'}
                       </td>
                       <td>
                         {isActive ? (
@@ -184,7 +187,7 @@ export default function LabDashboardView({
             </table>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

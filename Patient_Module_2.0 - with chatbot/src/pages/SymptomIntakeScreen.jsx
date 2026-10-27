@@ -196,7 +196,7 @@ export function SymptomIntakeScreen() {
           Describe Your Symptoms
         </h2>
         <p style={{ fontSize: '0.86rem', color: 'var(--slate-600)' }}>
-          Speak in your mother tongue or type. VaaniDoc converts this into structured info for the doctor.
+          Speak in your mother tongue or type. SwasthSetu converts this into structured info for the doctor.
         </p>
       </div>
 

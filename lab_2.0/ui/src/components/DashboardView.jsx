@@ -84,7 +84,7 @@ export default function DashboardView({
 
         <div className="metric-card">
           <div>
-            <div className="metric-label">Published to VaaniDoc</div>
+            <div className="metric-label">Published to SwasthSetu</div>
             <div className="metric-value" style={{ color: 'var(--status-normal-text)' }}><AnimatedCounter value={metrics?.publishedCount} padLength={0} /></div>
           </div>
           <CheckCircle size={32} color="var(--status-normal-text)" />

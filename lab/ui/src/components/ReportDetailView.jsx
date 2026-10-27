@@ -16,6 +16,7 @@ import {
   Check,
 } from 'lucide-react';
 import { DemoReportSelector } from './DemoReportSelector';
+import ReportRecoveryActions from './ReportRecoveryActions';
 
 export default function ReportDetailView({
   report,
@@ -29,6 +30,7 @@ export default function ReportDetailView({
   isProcessing,
   isPublishing,
   onUploadReport,
+  onRemoveReport,
   onUpdateObservation,
   onPublishReport,
   onBackToDashboard,
@@ -106,6 +108,14 @@ export default function ReportDetailView({
       || reportBlockers.some((reason) => reason.startsWith('EXTRACTION_'))
     ),
   );
+  const identityMismatches = Array.isArray(report?.extraction_identity_check?.mismatches)
+    ? report.extraction_identity_check.mismatches
+    : [];
+  const recoveryRequired = Boolean(
+    !isPublished
+      && grantStatus === 'ACTIVE'
+      && (report?.status === 'NEEDS_REVIEW' || publishBlockers.length > 0),
+  );
 
   const formatBlocker = (reason) => {
     const code = String(reason);
@@ -122,6 +132,7 @@ export default function ReportDetailView({
     if (code === 'OBSERVATION_REVIEW_REQUIRED') return 'One or more observations still require review.';
     if (code === 'OBSERVATION_VALUE_INVALID') return 'One or more observations do not contain a valid numeric value.';
     if (code === 'NO_OBSERVATIONS') return 'No validated observations are available for publication.';
+    if (code === 'PATIENT_IDENTITY_MISMATCH') return 'The report identity does not match the patient who authorized this visit.';
     if (code === 'BOUNDED_ACCESS_EXPIRED') return 'The patient access grant has expired.';
     if (code === 'EXTRACTION_REVIEW_REQUIRED') return 'Structural extraction review is not complete.';
     return code.replaceAll('_', ' ').toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
@@ -445,7 +456,7 @@ export default function ReportDetailView({
               ✓ Report Published
             </div>
             <div style={{ fontSize: '0.88rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}>
-              The report is now available to the patient in VaaniDoc.
+              The report is now available to the patient in SwasthSetu.
             </div>
             <div
               style={{
@@ -486,18 +497,43 @@ export default function ReportDetailView({
                <ul style={{ margin: '0.45rem 0 0 1.1rem' }}>
                  {publishBlockers.map((reason) => <li key={reason}>{formatBlocker(reason)}</li>)}
                </ul>
-               {hasObservationReview ? (
+                {identityMismatches.length > 0 && (
+                  <div style={{ marginTop: '0.55rem', padding: '0.65rem 0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(255, 255, 255, 0.55)', border: '1px solid rgba(185, 28, 28, 0.18)' }}>
+                    <strong>Detected identity differences:</strong>
+                    <ul style={{ margin: '0.35rem 0 0 1.1rem' }}>
+                      {identityMismatches.map((mismatch) => (
+                        <li key={mismatch.field}>
+                          {mismatch.field.replaceAll('_', ' ')}: report shows <strong>{mismatch.observed}</strong>
+                          {mismatch.expected
+                            ? <>; visit expects <strong>{mismatch.expected}</strong></>
+                            : '; it does not match this visit'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {hasObservationReview ? (
                  <div style={{ marginTop: '0.55rem' }}>
                    Use <strong>Fix &amp; Verify</strong> on each flagged observation. The original PDF stays preserved while the audited correction is saved.
                  </div>
                ) : (
                  <div style={{ marginTop: '0.55rem' }}>
-                    No observations are currently flagged. Structural extraction review is still required; the preserved report cannot be replaced under the same access grant. Resolve the structural blocker with a new grant or a fresh demo fixture.
+                    Structural extraction review is still required. Upload a corrected PDF using Replace Report below, or remove this report to return the visit to the upload queue.
                  </div>
                )}
              </div>
            </div>
          </div>
+      )}
+
+      {recoveryRequired && (
+        <ReportRecoveryActions
+          key={`${report._id}-${report.workflow_revision || 0}`}
+           onReplace={onUploadReport}
+           onRemove={onRemoveReport}
+           reasons={publishBlockers}
+           busy={isProcessing || isPublishing || isSavingEdit}
+        />
       )}
 
       {/* Preserved Original Report File Notice (Section #5) */}
@@ -522,7 +558,7 @@ export default function ReportDetailView({
               Preserved Original File: <span style={{ fontFamily: 'var(--font-mono)' }}>{report?.original_file_name || 'Original report file'}</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              Original laboratory document preserved without modification. Patient can access original report in VaaniDoc.
+              Original document preserved without modification. The patient can access the current PDF after publication.
             </div>
           </div>
         </div>
@@ -649,6 +685,7 @@ export default function ReportDetailView({
                           className="btn-clinical outline"
                           style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem' }}
                           onClick={() => handleStartEdit(obs)}
+                          disabled={isProcessing || isPublishing}
                         >
                           <Edit3 size={12} />
                           <span>{isItemNeedsReview ? 'Fix & Verify' : 'Edit'}</span>
@@ -685,9 +722,9 @@ export default function ReportDetailView({
             ) : (
               <button
                 className="btn-clinical primary"
-                disabled={publishBlockers.length > 0 || isExtractionPending || isPublishing}
+                disabled={publishBlockers.length > 0 || isExtractionPending || isPublishing || isProcessing}
                 onClick={() => setIsPublishModalOpen(true)}
-                title={publishBlockers.length > 0 ? 'Resolve all publication blockers before publishing' : 'Publish report to VaaniDoc'}
+                title={publishBlockers.length > 0 ? 'Resolve all publication blockers before publishing' : 'Publish report to SwasthSetu'}
                 style={{ padding: '0.65rem 1.4rem' }}
               >
                 {isExtractionPending ? (
@@ -835,7 +872,7 @@ export default function ReportDetailView({
             <div className="modal-dialog-header">
               <div className="card-title-group">
                 <Send size={18} color="var(--teal-700)" />
-                <h3 className="card-title">Publish Report to VaaniDoc</h3>
+                <h3 className="card-title">Publish Report to SwasthSetu</h3>
               </div>
               <button
                 onClick={() => setIsPublishModalOpen(false)}
@@ -849,7 +886,7 @@ export default function ReportDetailView({
               <div className="info-banner neutral" style={{ marginBottom: '1rem' }}>
                 <ShieldCheck size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div style={{ fontSize: '0.82rem' }}>
-                  <strong>Bounded Access Notice:</strong> Publishing will transmit the Complete Blood Count findings to VaaniDoc. 
+                  <strong>Bounded Access Notice:</strong> Publishing will transmit the Complete Blood Count findings to SwasthSetu. 
                   The laboratory's access to patient identity will terminate automatically upon publication.
                 </div>
               </div>

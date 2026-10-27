@@ -29,7 +29,7 @@ export default function PatientVisitView({
           Report already uploaded
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', maxWidth: '34rem', margin: '0 auto' }}>
-          This access grant has a preserved laboratory report. The original report is immutable and cannot be replaced with another upload under the same grant.
+          This visit already has a report. Open it to review observations, replace the PDF, or remove an unpublished report.
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1.25rem' }}>
           <button className="btn-clinical primary" onClick={onOpenReport}>

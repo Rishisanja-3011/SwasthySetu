@@ -74,7 +74,7 @@ const WORKFLOW_STEPS = [
     step: 2,
     color: 'var(--secondary-lavender)',
     title: 'Share Symptoms',
-    description: 'Speak in your regional language or type your complaints. VaaniDoc accurately records patient voice in real time.',
+    description: 'Speak in your regional language or type your complaints. SwasthSetu accurately records patient voice in real time.',
   },
   {
     step: 3,
@@ -230,7 +230,7 @@ export function LandingPage() {
                 marginBottom: 28,
                 maxWidth: 540,
               }}>
-                VaaniDoc helps patients share their symptoms through voice or text in their native language and helps doctors review structured clinical information before consultation.
+                SwasthSetu helps patients share their symptoms through voice or text in their native language and helps doctors review structured clinical information before consultation.
               </p>
 
               {/* Dual Primary CTAs */}
@@ -637,7 +637,7 @@ export function LandingPage() {
               Simple 4-Step Connected Care Journey
             </h2>
             <p style={{ fontSize: '0.96rem', color: 'var(--muted-text)', maxWidth: 580, margin: '0 auto' }}>
-              How VaaniDoc streamlines patient intake from waiting room to consultation cabin.
+              How SwasthSetu streamlines patient intake from waiting room to consultation cabin.
             </p>
           </div>
 
@@ -752,7 +752,7 @@ export function LandingPage() {
                 }}>
                   <Activity size={18} />
                 </div>
-                <strong style={{ fontSize: '1.15rem', color: 'var(--main-text)' }}>VaaniDoc</strong>
+                <strong style={{ fontSize: '1.15rem', color: 'var(--main-text)' }}>SwasthSetu</strong>
               </div>
               <p style={{ fontSize: '0.84rem', color: 'var(--muted-text)', lineHeight: 1.5 }}>
                 Hospital-grade patient-doctor communication & queue coordination platform.
@@ -793,7 +793,7 @@ export function LandingPage() {
             <div>
               <h4 style={{ fontSize: '0.88rem', color: 'var(--main-text)', marginBottom: 12 }}>Data Privacy Notice</h4>
               <p style={{ fontSize: '0.8rem', color: 'var(--muted-text)', lineHeight: 1.5, margin: 0 }}>
-                VaaniDoc facilitates structured communication. It does not provide medical diagnoses or replace licensed physicians. All voice audio is automatically deleted upon consultation closure.
+                SwasthSetu facilitates structured communication. It does not provide medical diagnoses or replace licensed physicians. All voice audio is automatically deleted upon consultation closure.
               </p>
             </div>
           </div>
@@ -807,7 +807,7 @@ export function LandingPage() {
             fontSize: '0.8rem',
             color: 'var(--muted-text)',
           }}>
-            <span>© 2026 VaaniDoc Healthcare Platform. All rights reserved.</span>
+            <span>© 2026 SwasthSetu Healthcare Platform. All rights reserved.</span>
             <span>Built with Patient Sovereignty & Bounded Clinical Access.</span>
           </div>
         </div>

@@ -206,7 +206,7 @@ export const DiagnosticOrderModal = ({ encounterId, isOpen, onClose, onOrderCrea
               <ShieldCheck size={14} color="var(--hospital-blue)" />
               <span>Diagnostic Bounded Workflow:</span>
             </div>
-            The patient receives this diagnostic order on their VaaniDoc portal. When they visit a lab and scan the lab's QR, bounded access allows the lab to upload results directly to this encounter.
+            The patient receives this diagnostic order on their SwasthSetu portal. When they visit a lab and scan the lab's QR, bounded access allows the lab to upload results directly to this encounter.
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 4 }}>

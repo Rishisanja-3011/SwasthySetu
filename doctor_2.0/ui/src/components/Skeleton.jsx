@@ -137,7 +137,7 @@ export function SkeletonCard({ children, style = {}, className = '', ...props })
 }
 
 /* =========================================================================
-   COMPOSITE DOMAIN SKELETONS MATCHING VaaniDoc EXACT LAYOUTS
+   COMPOSITE DOMAIN SKELETONS MATCHING SwasthSetu EXACT LAYOUTS
    ========================================================================= */
 
 /**

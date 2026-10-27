@@ -9,7 +9,7 @@ function easeInOutCubic(t) {
 }
 
 /**
- * AnimatedCounter component for VaaniDoc Laboratory Dashboard.
+ * AnimatedCounter component for SwasthSetu Laboratory Dashboard.
  *
  * Smoothly animates numbers from previous to new values using requestAnimationFrame.
  * - On initial dashboard load: counts upward from 0 to actual backend value.

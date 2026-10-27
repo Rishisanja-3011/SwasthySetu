@@ -44,13 +44,13 @@ export function VisitTypeScreen() {
   }, [location.state]);
 
   const handleSelectVisitType = (visitType) => {
-    sessionStorage.setItem('vaanidoc_visit_type', visitType);
+    sessionStorage.setItem('swasthsetu_visit_type', visitType);
     if (visitType === 'REVISITING') {
       navigate('/doctor-access-permission', {
         state: { doctor, visitType: 'REVISITING' },
       });
     } else {
-      sessionStorage.setItem('vaanidoc_access_granted', 'false');
+      sessionStorage.setItem('swasthsetu_access_granted', 'false');
       navigate('/intake', {
         state: {
           doctor,

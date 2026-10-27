@@ -77,7 +77,7 @@ export function IntakeReviewScreen() {
     setErrorMessage('');
     try {
       const confirmed = await patientApi.confirmIntake({ encounterId: encounter.id, inputMode, structuredData: { clinical_intake: clinicalData } });
-      updateActiveEncounter({ ...encounter, intake: confirmed });
+      updateActiveEncounter({ ...encounter, ...confirmed.encounter, intake: confirmed.intake });
       navigate('/waiting', { replace: true });
     } catch (error) {
       setErrorMessage(error.message || 'The intake could not be confirmed. Nothing was submitted to the doctor.');

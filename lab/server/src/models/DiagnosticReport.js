@@ -46,6 +46,10 @@ const diagnosticReportSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     default: null,
   },
+  extraction_identity_check: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+  },
   extraction_coverage: {
     type: mongoose.Schema.Types.Mixed,
     default: null,

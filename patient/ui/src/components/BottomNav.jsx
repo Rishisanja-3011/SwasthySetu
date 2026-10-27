@@ -1,10 +1,13 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { QrCode, FileText, Clock, MessageSquareHeart } from 'lucide-react';
+import { QrCode, FileText, Clock, MessageSquareHeart, Activity } from 'lucide-react';
+import { usePatient } from '../context/PatientContext';
+import { isLiveConsultation } from '../utils/encounterState';
 import './BottomNav.css';
 import { useMediBotIntro } from '../context/MediBotIntroContext';
 
 export function BottomNav() {
+  const { activeEncounter } = usePatient();
   const location = useLocation();
   const { triggerMediBotIntro } = useMediBotIntro();
   const handleAssistantClick = (event) => {
@@ -49,6 +52,12 @@ export function BottomNav() {
         <MessageSquareHeart className="nav-tab-icon" />
         <span>Assistant</span>
       </NavLink>
+      {isLiveConsultation(activeEncounter) && (
+        <NavLink to="/waiting" className={({ isActive }) => `nav-tab-item ${isActive ? 'active' : ''}`}>
+          <Activity className="nav-tab-icon" />
+          <span>Consultation</span>
+        </NavLink>
+      )}
     </nav>
   );
 }

@@ -79,7 +79,7 @@ export const PrintableQRStandee = ({ doctor }) => {
             marginBottom: 8,
           }}>
             <Sparkles size={13} />
-             VaaniDoc Connected Clinic
+             SwasthSetu Connected Clinic
           </div>
 
           <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--navy-900)', margin: '4px 0' }}>

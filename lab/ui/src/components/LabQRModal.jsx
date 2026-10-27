@@ -99,13 +99,13 @@ export default function LabQRModal({
           {/* QR Poster Simulation Card */}
           <div className="qr-poster">
             <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', fontWeight: 700 }}>
-              VaaniDoc Registered Laboratory
+              SwasthSetu Registered Laboratory
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '0.35rem 0' }}>
               {lab?.name || 'Laboratory'}
             </h2>
             <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
-              Patients: Scan this QR code with your camera or VaaniDoc app to grant 4-field identity access.
+              Patients: Scan this QR code with your camera or SwasthSetu app to grant 4-field identity access.
             </p>
 
             <div className="qr-matrix-box">

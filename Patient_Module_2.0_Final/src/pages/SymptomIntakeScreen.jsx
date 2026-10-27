@@ -24,22 +24,22 @@ export function SymptomIntakeScreen() {
   const navigate = useNavigate();
 
   const doctor = location.state?.doctor || patientApi.getSessionDoctor();
-  const visitType = location.state?.visitType || sessionStorage.getItem('vaanidoc_visit_type') || 'NEW';
+  const visitType = location.state?.visitType || sessionStorage.getItem('swasthsetu_visit_type') || 'NEW';
   const doctorAccessGranted = location.state?.doctorAccessGranted !== undefined
     ? location.state.doctorAccessGranted
-    : (sessionStorage.getItem('vaanidoc_access_granted') === 'true');
+    : (sessionStorage.getItem('swasthsetu_access_granted') === 'true');
 
   useEffect(() => {
     if (doctor) patientApi.saveSessionDoctor(doctor);
-    sessionStorage.setItem('vaanidoc_visit_type', visitType);
-    sessionStorage.setItem('vaanidoc_access_granted', String(doctorAccessGranted));
+    sessionStorage.setItem('swasthsetu_visit_type', visitType);
+    sessionStorage.setItem('swasthsetu_access_granted', String(doctorAccessGranted));
   }, [doctor, visitType, doctorAccessGranted]);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [inputMode, setInputMode] = useState('voice'); // 'voice' | 'text'
   const [detectedLang, setDetectedLang] = useState(() => {
     try {
-      const stored = sessionStorage.getItem('vaanidoc_detected_lang');
+      const stored = sessionStorage.getItem('swasthsetu_detected_lang');
       return stored ? JSON.parse(stored) : null;
     } catch (e) {
       return null;
@@ -103,7 +103,7 @@ export function SymptomIntakeScreen() {
           if (detected) {
             setDetectedLang(detected);
             try {
-              sessionStorage.setItem('vaanidoc_detected_lang', JSON.stringify(detected));
+              sessionStorage.setItem('swasthsetu_detected_lang', JSON.stringify(detected));
             } catch (e) {}
           }
         };
@@ -257,7 +257,7 @@ export function SymptomIntakeScreen() {
           Describe Your Symptoms
         </h2>
         <p style={{ fontSize: '0.9rem', color: 'var(--muted-text)' }}>
-          Speak in your mother tongue or type below. VaaniDoc organizes this clearly for the doctor.
+          Speak in your mother tongue or type below. SwasthSetu organizes this clearly for the doctor.
         </p>
       </div>
 

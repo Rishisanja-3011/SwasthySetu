@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const TOKEN_SECRET = process.env.VAANIDOC_TOKEN_SECRET || 'vaanidoc-local-development-secret';
+const TOKEN_SECRET = process.env.SWASTHSETU_TOKEN_SECRET || 'swasthsetu-local-development-secret';
 const SESSION_TTL_SECONDS = 8 * 60 * 60;
 
 function encode(value) {

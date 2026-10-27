@@ -8,7 +8,7 @@ const DEFAULT_MODELS = require('../src/models');
 const { normalizePhone } = require('../src/utils/phone');
 const { removeOriginalPdf } = require('../src/services/reportFiles');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/vaani_doc_local';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/swasthsetu_local';
 const CATALOG_PATH = path.resolve(__dirname, '../../../demo/catalog.json');
 const CATALOG = JSON.parse(fs.readFileSync(CATALOG_PATH, 'utf8'));
 const SHARED_FIELDS = ['name', 'date_of_birth', 'gender', 'phone'];
@@ -143,7 +143,7 @@ async function ensureUser(model, expected, role, label) {
 
 async function ensureProvider(model, expected, role, user, label) {
   const fields = role === 'DOCTOR'
-    ? { _id: fixtureObjectId('doctor-provider'), user_id: user._id, name: expected.name, specialty: 'General Physician', clinic_name: 'VaaniDoc Demo Clinic', qr_code_id: expected.code }
+    ? { _id: fixtureObjectId('doctor-provider'), user_id: user._id, name: expected.name, specialty: 'General Physician', clinic_name: 'SwasthSetu Demo Clinic', qr_code_id: expected.code }
     : { _id: fixtureObjectId('laboratory-provider'), user_id: user._id, name: expected.name, qr_code_id: expected.code, location: 'Synthetic Demo Facility', contact_phone: normalizePhone(expected.phone), platform_approval_status: 'APPROVED' };
   const provider = await model.findOneAndUpdate(
     { qr_code_id: expected.code },
@@ -183,6 +183,7 @@ async function resetOwnedFixture({ models, patient, laboratory, order, grant }) 
   const {
     LabObservation,
     ReportFile,
+    ReportRevision,
     DiagnosticReport,
     LabAccessGrant,
     DiagnosticOrder,
@@ -199,6 +200,15 @@ async function resetOwnedFixture({ models, patient, laboratory, order, grant }) 
     lab_access_grant_id: grant._id,
   });
   const reportIds = reports.map((report) => report._id);
+  const revisionFilter = {
+    patient_id: patient._id, laboratory_id: laboratory._id,
+    lab_access_grant_id: grant._id, 'report.diagnostic_order_id': order._id,
+  };
+  const revisions = await ReportRevision.find(revisionFilter);
+  for (const revision of revisions) {
+    if (revision.original_file) await removeOriginalPdf(revision.original_file).catch(() => {});
+  }
+  await ReportRevision.deleteMany(revisionFilter);
   if (reportIds.length) {
     const files = await ReportFile.find({ report_id: { $in: reportIds } });
     for (const file of files) await removeOriginalPdf(file).catch(() => {});

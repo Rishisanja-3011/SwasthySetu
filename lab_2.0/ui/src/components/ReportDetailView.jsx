@@ -445,7 +445,7 @@ export default function ReportDetailView({
               ✓ Report Published
             </div>
             <div style={{ fontSize: '0.88rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}>
-              The report is now available to the patient in VaaniDoc.
+              The report is now available to the patient in SwasthSetu.
             </div>
             <div
               style={{
@@ -522,7 +522,7 @@ export default function ReportDetailView({
               Preserved Original File: <span style={{ fontFamily: 'var(--font-mono)' }}>{report?.original_file_name || 'Original report file'}</span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-              Original laboratory document preserved without modification. Patient can access original report in VaaniDoc.
+              Original laboratory document preserved without modification. Patient can access original report in SwasthSetu.
             </div>
           </div>
         </div>
@@ -687,7 +687,7 @@ export default function ReportDetailView({
                 className="btn-clinical primary"
                 disabled={publishBlockers.length > 0 || isExtractionPending || isPublishing}
                 onClick={() => setIsPublishModalOpen(true)}
-                title={publishBlockers.length > 0 ? 'Resolve all publication blockers before publishing' : 'Publish report to VaaniDoc'}
+                title={publishBlockers.length > 0 ? 'Resolve all publication blockers before publishing' : 'Publish report to SwasthSetu'}
                 style={{ padding: '0.65rem 1.4rem' }}
               >
                 {isExtractionPending ? (
@@ -835,7 +835,7 @@ export default function ReportDetailView({
             <div className="modal-dialog-header">
               <div className="card-title-group">
                 <Send size={18} color="var(--teal-700)" />
-                <h3 className="card-title">Publish Report to VaaniDoc</h3>
+                <h3 className="card-title">Publish Report to SwasthSetu</h3>
               </div>
               <button
                 onClick={() => setIsPublishModalOpen(false)}
@@ -849,7 +849,7 @@ export default function ReportDetailView({
               <div className="info-banner neutral" style={{ marginBottom: '1rem' }}>
                 <ShieldCheck size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div style={{ fontSize: '0.82rem' }}>
-                  <strong>Bounded Access Notice:</strong> Publishing will transmit the Complete Blood Count findings to VaaniDoc. 
+                  <strong>Bounded Access Notice:</strong> Publishing will transmit the Complete Blood Count findings to SwasthSetu. 
                   The laboratory's access to patient identity will terminate automatically upon publication.
                 </div>
               </div>

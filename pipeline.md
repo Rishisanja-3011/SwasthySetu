@@ -13,7 +13,7 @@ The canonical application remains:
 - Node/Mongoose application API: `lab/server/`
 - Doctor UI: `doctor/ui/`
 
-The legacy Python code under `vaanidoc-backend/` is a read-only reference. Reuse
+The legacy Python code under `swasthsetu-backend/` is a read-only reference. Reuse
 or adapt its proven concepts into the canonical services when useful; do not
 connect the deployed workflow to the legacy Supabase/session implementation and
 do not modify the legacy folder.
@@ -21,7 +21,7 @@ do not modify the legacy folder.
 ## Implementation prompt
 
 > Build a production-quality multilingual patient clinical-intake pipeline for
-> the canonical SwasthSetu/VaaniDoc application. Support both typed text and
+> the canonical SwasthSetu/SwasthSetu application. Support both typed text and
 > browser-recorded voice. Preserve the patient's original statement and input
 > language, detect the spoken language for voice, transcribe voice without
 > summarizing, normalize the clinical meaning into English, and produce a
@@ -35,22 +35,22 @@ do not modify the legacy folder.
 
 Use these legacy files as reference material before writing new logic:
 
-- `vaanidoc-backend/app/services/ai_service.py`
+- `swasthsetu-backend/app/services/ai_service.py`
   - `ClinicalIntake`, `EnglishIntake`, and `Confidence` Pydantic contracts
   - `process_patient_text()` language validation and structured extraction
   - `transcribe_patient_audio()` audio upload, preferred-language hint, and
     detected-language fallback
   - conservative fallback extraction behavior
-- `vaanidoc-backend/app/services/language.py`
+- `swasthsetu-backend/app/services/language.py`
   - canonical language aliases and normalization
-- `vaanidoc-backend/app/api/sessions.py`
+- `swasthsetu-backend/app/api/sessions.py`
   - text submission validation
   - multipart voice submission
   - browser transcript preference with server transcription fallback
   - background processing and session state transitions
-- `vaanidoc-backend/app/services/session_service.py`
+- `swasthsetu-backend/app/services/session_service.py`
   - session ownership/state concepts only; translate them to Mongoose models
-- `vaanidoc-backend/app/services/symptom_extraction.py`
+- `swasthsetu-backend/app/services/symptom_extraction.py`
   - field naming reference only; it is explicitly a stub and must not be copied
   as the final extractor
 

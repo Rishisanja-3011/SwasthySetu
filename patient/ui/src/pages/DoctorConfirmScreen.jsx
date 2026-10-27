@@ -8,7 +8,7 @@ export function DoctorConfirmScreen() {
   const navigate = useNavigate();
 
   const [storedDoctor] = useState(() => {
-    try { return JSON.parse(sessionStorage.getItem('vaanidoc_pending_scan_provider') || 'null')?.entity || null; } catch { return null; }
+    try { return JSON.parse(sessionStorage.getItem('swasthsetu_pending_scan_provider') || 'null')?.entity || null; } catch { return null; }
   });
   const [doctor, setDoctor] = useState(location.state?.doctor || storedDoctor);
 
@@ -38,7 +38,7 @@ export function DoctorConfirmScreen() {
   };
 
   const handleScanAgain = () => {
-    sessionStorage.removeItem('vaanidoc_pending_scan_provider');
+    sessionStorage.removeItem('swasthsetu_pending_scan_provider');
     navigate('/');
   };
 

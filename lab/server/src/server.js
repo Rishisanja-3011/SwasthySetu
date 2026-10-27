@@ -27,7 +27,7 @@ app.use('/api/patient', patientRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ONLINE',
-    system: 'VaaniDoc - Lab Module API & Bounded Access Guard',
+    system: 'SwasthSetu - Lab Module API & Bounded Access Guard',
     timestamp: new Date(),
   });
 });
@@ -37,7 +37,7 @@ async function startServer() {
   await connectDB();
   app.listen(PORT, () => {
     console.log(`=======================================================`);
-  console.log(`  VaaniDoc Lab Module Server running on port ${PORT}`);
+  console.log(`  SwasthSetu Lab Module Server running on port ${PORT}`);
     console.log(`  API Base: http://localhost:${PORT}/api/lab`);
     console.log(`  Health Check: http://localhost:${PORT}/api/health`);
     console.log(`=======================================================`);
@@ -45,6 +45,6 @@ async function startServer() {
 }
 
 startServer().catch((error) => {
-  console.error(`[VaaniDoc] Server startup failed: ${error.message}`);
+  console.error(`[SwasthSetu] Server startup failed: ${error.message}`);
   process.exitCode = 1;
 });

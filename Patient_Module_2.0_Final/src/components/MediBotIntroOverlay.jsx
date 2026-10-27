@@ -6,7 +6,7 @@ import './MediBotIntroOverlay.css';
  *
  * Full-screen animated robot introduction displayed when the user clicks the
  * Assistant navigation item. Reuses the existing MediBot robot avatar asset
- * (/images/medibot-robot-avatar.png) and aligns with the VaaniDoc soft white,
+ * (/images/medibot-robot-avatar.png) and aligns with the SwasthSetu soft white,
  * aqua, and teal neomorphic aesthetic.
  *
  * It remains 100% opaque and fully visible covering the entire viewport until

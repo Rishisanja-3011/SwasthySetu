@@ -93,7 +93,7 @@ the short-lived OTP from the local Node server terminal during development.
 | Patient | Demo Kabir Shah | `+919900000005` | `PXDEMO005` | Phone + terminal OTP |
 | Patient | Demo Meera Sen | `+919900000006` | `PXDEMO006` | Phone + terminal OTP |
 | Doctor | Dr. Demo Mehta | `+919900000010` | `DOC-DEMO01` | Provider code + phone |
-| Laboratory | VaaniDoc Demo Diagnostics | `+919900000020` | `LAB-DEMO01` | Provider code + phone |
+| Laboratory | SwasthSetu Demo Diagnostics | `+919900000020` | `LAB-DEMO01` | Provider code + phone |
 
 The first three patient phones/IDs and both provider codes remain compatible
 with the original fixture flow.

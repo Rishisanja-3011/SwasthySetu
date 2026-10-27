@@ -11,6 +11,7 @@ const DiagnosticOrder = require('./DiagnosticOrder');
 const LabAccessGrant = require('./LabAccessGrant');
 const DiagnosticReport = require('./DiagnosticReport');
 const ReportFile = require('./ReportFile');
+const ReportRevision = require('./ReportRevision');
 const LabObservation = require('./LabObservation');
 const AIArtifact = require('./AIArtifact');
 const AuditEvent = require('./AuditEvent');
@@ -30,6 +31,7 @@ module.exports = {
   LabAccessGrant,
   DiagnosticReport,
   ReportFile,
+  ReportRevision,
   LabObservation,
   AIArtifact,
   AuditEvent,

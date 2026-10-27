@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-multipart
+email-validator
+python-dotenv
+google-genai
+pytest
+supabase
+qrcode[pil]

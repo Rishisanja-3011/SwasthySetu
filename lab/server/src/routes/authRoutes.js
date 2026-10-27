@@ -194,7 +194,7 @@ router.post('/patient/request-otp', async (req, res) => {
     }
 
     console.log(
-      `[VaaniDoc OTP DEV] challenge=${challengeId} phone=${phone} otp=${otp} expires=${expiresAt.toISOString()}`,
+      `[SwasthSetu OTP DEV] challenge=${challengeId} phone=${phone} otp=${otp} expires=${expiresAt.toISOString()}`,
     );
 
     return res.status(202).json({

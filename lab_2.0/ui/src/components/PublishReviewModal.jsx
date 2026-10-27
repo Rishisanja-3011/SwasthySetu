@@ -85,7 +85,7 @@ export default function PublishReviewModal({
                   PUBLICATION STRICTLY BLOCKED ({unresolvedCount} Flagged Item{unresolvedCount > 1 ? 's' : ''}):
                 </strong>
                 <span>
-                  According to VaaniDoc 2.0 clinical safety invariants, blood reports containing unresolved{' '}
+                  According to SwasthSetu 2.0 clinical safety invariants, blood reports containing unresolved{' '}
                   <code>NEEDS_REVIEW</code> flags cannot be published. You must resolve all flagged observations before clinical sign-off.
                 </span>
               </div>
@@ -193,7 +193,7 @@ export default function PublishReviewModal({
             <Lock size={18} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--hospital-blue)' }} />
             <div style={{ fontSize: '0.82rem' }}>
               <strong>Bounded Access Termination Warning:</strong> Confirming publication will transmit this report to 
-              VaaniDoc and <strong>instantly expire this laboratory's access</strong> to the patient's identity. 
+              SwasthSetu and <strong>instantly expire this laboratory's access</strong> to the patient's identity. 
               No manual revoke is required; access terminates by construction.
             </div>
           </div>

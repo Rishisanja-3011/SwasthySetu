@@ -11,7 +11,7 @@ app = FastAPI(
 
 
 # CORS configuration
-# Allow requests from standalone MediBot and VaaniDoc.
+# Allow requests from standalone MediBot and SwasthSetu.
 
 app.add_middleware(
     CORSMiddleware,

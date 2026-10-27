@@ -1,5 +1,5 @@
 /**
- * VaaniDoc 2.0 - CBC Extraction & Deterministic Validation Engine
+ * SwasthSetu 2.0 - CBC Extraction & Deterministic Validation Engine
  * 
  * Rules:
  * 1. Scope: CBC Only.

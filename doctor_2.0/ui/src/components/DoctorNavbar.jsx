@@ -29,7 +29,7 @@ export const DoctorNavbar = () => {
           </div>
           <div className="brand-title-wrap">
             <div className="brand-name">
-              VaaniDoc
+              SwasthSetu
               <span className="brand-version">Doctor</span>
             </div>
             <div className="brand-subtitle">

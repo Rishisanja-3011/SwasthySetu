@@ -1,4 +1,4 @@
-# VaaniDoc 2.0: Master Product Blueprint & Implementation Plan (`plan.md`)
+# SwasthSetu 2.0: Master Product Blueprint & Implementation Plan (`plan.md`)
 
 ---
 
@@ -20,7 +20,7 @@ In village and semi-urban settings, healthcare access suffers from systemic, hum
    - Patients carry fragile paper reports across long distances. Reports get torn, lost, or forgotten at home, leaving doctors blind to past diagnostic trends.
 5. **The Privacy Dilemma:**
    - Patients deserve strong data privacy, but manual consent systems (toggles, revocation dashboards, scope pickers) are confusing and unused.
-   - VaaniDoc resolves this through **Bounded Access**: access to patient data exists *only* while a consultation is open or until a lab report is published, self-expiring with **zero manual revoke steps**.
+   - SwasthSetu resolves this through **Bounded Access**: access to patient data exists *only* while a consultation is open or until a lab report is published, self-expiring with **zero manual revoke steps**.
 
 ---
 
@@ -32,9 +32,9 @@ In village and semi-urban settings, healthcare access suffers from systemic, hum
    - Every doctor's clinic and diagnostic lab displays a clear, printed counter standee/poster with:
      1. A large **QR Code**.
      2. A human-readable 4-to-6 character **Fallback Code** (e.g., `DOC-409` or `LAB-102`) for low-resolution phone cameras or damaged posters.
-   - Pointing any smartphone camera or Google Lens at the poster instantly opens the web page (`https://vaanidoc.health/scan/DOC-409` or `/scan/LAB-102`).
+   - Pointing any smartphone camera or Google Lens at the poster instantly opens the web page (`https://swasthsetu.health/scan/DOC-409` or `/scan/LAB-102`).
 3. **Manual Code Entry on Home Page:**
-   - Patients visiting the main URL (`vaanidoc.health`) have a prominent "Enter Clinic / Lab Code" input box as a zero-camera fallback.
+   - Patients visiting the main URL (`swasthsetu.health`) have a prominent "Enter Clinic / Lab Code" input box as a zero-camera fallback.
 
 ### 👤 Patient Registration & Identity Resolution
 * **New Patient (First Visit):**

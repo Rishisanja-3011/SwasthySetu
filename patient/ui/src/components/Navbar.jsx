@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Activity, ChevronDown, User, ShieldCheck, QrCode, FileText, Clock, MessageSquareHeart } from 'lucide-react';
 import { usePatient } from '../context/PatientContext';
+import { isLiveConsultation } from '../utils/encounterState';
 import { PatientSwitcherModal } from './PatientSwitcherModal';
 import { PatientNotificationBell } from './PatientNotificationBell';
 import './Navbar.css';
@@ -29,7 +30,7 @@ export function Navbar() {
             </div>
             <div className="brand-title-wrap">
               <div className="brand-name">
-                VaaniDoc
+                SwasthSetu
                 <span className="brand-version">2.0</span>
               </div>
               <div className="brand-subtitle">Patient Portal</div>
@@ -71,7 +72,7 @@ export function Navbar() {
               <MessageSquareHeart size={16} />
               <span>Assistant</span>
             </NavLink>
-            {activeEncounter?.status === 'OPEN' && (
+            {isLiveConsultation(activeEncounter) && (
               <NavLink
                 to="/waiting"
                 className={({ isActive }) => `desktop-nav-link ongoing-consultation-link ${isActive ? 'active' : ''}`}
